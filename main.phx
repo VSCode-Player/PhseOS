@@ -1,1 +1,6 @@
-MOV i1,R0,R1
+LABLE test
+MOV R0,R1
+DONE
+LABLE damn
+ADD 1,1
+DONE

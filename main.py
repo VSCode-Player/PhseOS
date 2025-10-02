@@ -8,19 +8,20 @@ IMM_PATTERN = re.compile(r'^i\d+$')
 STR_PATTERN = re.compile(r'^s"([^"]*)"$')   # 捕获引号内内容
 CONFIG = json.loads(Path("build.json").read_text())
 
-# ---------- 地址解析器 ----------
+# ---------- 地址解析器（一次性解析） ----------
 def parse_operand(op: str):
+    """返回立即值/字符串/内存或寄存器中的当前值"""
     if IMM_PATTERN.fullmatch(op):
-        return lambda: int(op[1:])
+        return int(op[1:])
     if STR_PATTERN.fullmatch(op):
-        return lambda: STR_PATTERN.fullmatch(op).group(1) # type: ignore
+        return STR_PATTERN.fullmatch(op).group(1)  # type: ignore
     if HEX_PATTERN.fullmatch(op):
-        return lambda: json.loads(Path(CONFIG["RAM_file"]).read_text())[op]
+        return json.loads(Path(CONFIG["RAM_file"]).read_text())[op]
     if REG_PATTERN.fullmatch(op):
-        return lambda: json.loads(Path(CONFIG["REG_file"]).read_text())[op]
+        return json.loads(Path(CONFIG["REG_file"]).read_text())[op]
     raise ValueError(f"Invalid operand: {op}")
 
-# ---------- 数据写入器 ----------
+# ---------- 数据写入器（自带落盘） ----------
 def write_operand(op: str, value):
     if HEX_PATTERN.fullmatch(op):
         path = Path(CONFIG["RAM_file"])
@@ -31,7 +32,9 @@ def write_operand(op: str, value):
 
     data = json.loads(path.read_text())
     data[op] = value
-    path.write_text(json.dumps(data, separators=(",", ":")))
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, separators=(",", ":"))
+        flush_file(f)          # <-- 落盘
 
 def flush_file(file):
     """强制落盘函数，删不得"""
@@ -54,7 +57,7 @@ def expand_multiline(lines: list[str], first: int, last: int) -> list[str]:
         if ln.split("#", 1)[0].strip()
     ]
 
-# ---------- 数学运算模板 ----------
+# ---------- 数学运算模板（名字不变） ----------
 def alu_line(line: str, op):
     parts = line.split(maxsplit=1)
     if len(parts) != 2:
@@ -62,14 +65,14 @@ def alu_line(line: str, op):
     src_op, dst_op = (p.strip() for p in parts[1].split(",", 1))
 
     try:
-        src_val = parse_operand(src_op)()
-        dst_val = parse_operand(dst_op)()
+        src_val = parse_operand(src_op)      # 一次性解析
+        dst_val = parse_operand(dst_op)
         result = int(op(src_val, dst_val))
-        write_operand(src_op, result)  # 写回 src
+        write_operand(src_op, result)        # 内部已落盘
     except Exception as e:
         return str(e)
     return True
-# ---------- 逻辑运算模板 ----------
+# ---------- 逻辑运算模板（名字不变） ----------
 def logic_line(line: str, op):
     parts = line.split(maxsplit=1)
     if len(parts) != 2:
@@ -77,48 +80,55 @@ def logic_line(line: str, op):
     src_op, dst_op = (p.strip() for p in parts[1].split(",", 1))
 
     try:
-        src_val = parse_operand(src_op)()
-        dst_val = parse_operand(dst_op)()
+        src_val = parse_operand(src_op)      # 一次性解析
+        dst_val = parse_operand(dst_op)
         result = int(op(src_val, dst_val))
-        # 写回标志寄存器
+        # 写标志寄存器
         reg_f_path = Path(CONFIG["REG_F_file"])
         reg_data = json.loads(reg_f_path.read_text())
         reg_data["LX"] = result
-        reg_f_path.write_text(json.dumps(reg_data, separators=(",", ":")))
+        with reg_f_path.open("w", encoding="utf-8") as f:
+            json.dump(reg_data, f, separators=(",", ":"))
+            flush_file(f)                    # <-- 落盘
     except Exception as e:
         return str(e)
-# ---------- 指令实现 ----------
+
+# ---------- 非模板指令实现（统一格式） ----------
 def run_MOV(line: str):
+    """MOV dst,src  把 src 的值写进 dst"""
     parts = line.split(maxsplit=1)
     if len(parts) != 2:
         return "MOV need 2 args"
     src_op, dst_op = (p.strip() for p in parts[1].split(",", 1))
 
     try:
-        val = parse_operand(src_op)()
-        write_operand(dst_op, val)
+        val = parse_operand(src_op)   # 解析
+        write_operand(dst_op, val)    # 写回（已落盘）
     except Exception as e:
         return str(e)
     return True
 
+
 def run_NOT(line: str):
+    """NOT src  对 src 取反，结果写标志寄存器 LX"""
     parts = line.split(maxsplit=1)
     if len(parts) != 2:
         return "NOT need 1 arg"
-    src_token = parts[1].strip()
+    src_op = parts[1].strip()
 
-    src_file = CONFIG["RAM_file"] if HEX_PATTERN.fullmatch(src_token) else CONFIG["REG_file"]
-
-    with Path(src_file).open(encoding="utf-8") as sf:
-        result = not json.load(sf)[src_token]
-
-    with Path(CONFIG["REG_F_file"]).open("r+", encoding="utf-8") as reg_f:
-        reg_data = json.load(reg_f)
+    try:
+        val = parse_operand(src_op)            # 解析
+        result = int(not val)                  # 运算
+        # 写标志寄存器
+        reg_f_path = Path(CONFIG["REG_F_file"])
+        reg_data = json.loads(reg_f_path.read_text())
         reg_data["LX"] = result
-        reg_f.seek(0)
-        reg_f.truncate()
-        reg_f.write(json.dumps(reg_data))
-        flush_file(reg_f)
+        with reg_f_path.open("w", encoding="utf-8") as f:
+            json.dump(reg_data, f, separators=(",", ":"))
+            flush_file(f)                      # 落盘
+    except Exception as e:
+        return str(e)
+    return True
 
 # 数学运算指令
 run_ADD = lambda line: alu_line(line, lambda s, d: s + d)
@@ -138,7 +148,25 @@ KEYWORD_TABLE = {"MOV": run_MOV, "ADD": run_ADD, "SUB": run_SUB,
 
 if __name__ == "__main__":
     lines = [ln.rstrip() for ln in Path("main.phx").open(encoding="utf-8")]
-    stack = []
+    line_count = 0
+    LABLE_line = 0
+    LABLE_name = ""
+    DONE_line = 0
+    LABLE_list = []
+    done_used = False          # 新增：DONE 已处理标志
     for i in lines:
-        print(i[:i.find(" ")])
-        print(i[i.find(" "):])
+        line_count += 1
+        if i[:i.find(" ")] == "LABLE":
+            LABLE_line = line_count
+            LABLE_name = i[i.find(" ")+1:]
+        elif i == "DONE" and LABLE_line != 0 and not done_used:  # 仅第一次有效
+            DONE_line = line_count
+            LABLE_list.append([
+                LABLE_name,
+                expand_multiline(lines, LABLE_line, DONE_line)
+            ])
+            done_used = True   # 标记已处理，后续 DONE 直接无视
+        # KEYWORD_TABLE[i[:i.find(" ")]](i)
+    print("LABLE_line:", LABLE_line)
+    print("DONE_line:", DONE_line)
+    print("LABLE_BLOCK:", LABLE_list)
