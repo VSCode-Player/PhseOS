@@ -55,6 +55,8 @@ def expand_multiline(lines: list[str], first: int, last: int) -> list[str]:
         ln.split("#", 1)[0].strip()
         for ln in lines[first:last+1]
         if ln.split("#", 1)[0].strip()
+        and not ln.strip().startswith("LABLE ")  # ✅ 过滤 LABLE 行
+        and ln.strip() != "DONE"                 # ✅ 过滤 DONE 行
     ]
 
 # ---------- 数学运算模板（名字不变） ----------
@@ -149,24 +151,19 @@ KEYWORD_TABLE = {"MOV": run_MOV, "ADD": run_ADD, "SUB": run_SUB,
 if __name__ == "__main__":
     lines = [ln.rstrip() for ln in Path("main.phx").open(encoding="utf-8")]
     line_count = 0
-    LABLE_line = 0
+    LABLE_line = 0          # 0 表示当前不在任何块内
     LABLE_name = ""
-    DONE_line = 0
     LABLE_list = []
-    done_used = False          # 新增：DONE 已处理标志
     for i in lines:
         line_count += 1
-        if i[:i.find(" ")] == "LABLE":
+        if i.startswith("LABLE ") and LABLE_line == 0:  # 只在块外响应新块
             LABLE_line = line_count
-            LABLE_name = i[i.find(" ")+1:]
-        elif i == "DONE" and LABLE_line != 0 and not done_used:  # 仅第一次有效
-            DONE_line = line_count
+            LABLE_name = i.split(" ", 1)[1]
+        elif i.strip() == "DONE" and LABLE_line != 0:  # 块内遇到 DONE
             LABLE_list.append([
                 LABLE_name,
-                expand_multiline(lines, LABLE_line, DONE_line)
+                expand_multiline(lines, LABLE_line, line_count)
             ])
-            done_used = True   # 标记已处理，后续 DONE 直接无视
-        # KEYWORD_TABLE[i[:i.find(" ")]](i)
-    print("LABLE_line:", LABLE_line)
-    print("DONE_line:", DONE_line)
+            LABLE_line = 0      # 清零 -> 回到块外，可继续收下一个块
+                
     print("LABLE_BLOCK:", LABLE_list)
