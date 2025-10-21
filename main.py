@@ -165,5 +165,5 @@ if __name__ == "__main__":
                 expand_multiline(lines, LABLE_line, line_count)
             ])
             LABLE_line = 0      # 清零 -> 回到块外，可继续收下一个块
-                
-    print("LABLE_BLOCK:", LABLE_list)
+        else:
+            KEYWORD_TABLE[i[:i.find(" ")]](i)
