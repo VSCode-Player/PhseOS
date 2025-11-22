@@ -1,0 +1,1 @@
+venv文件夹不要乱改，里面有一个我自制的PhseXlib模块，用于辅助PhseOS中PhseX语言的开发，删除会报大错。
