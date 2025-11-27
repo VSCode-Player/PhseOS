@@ -5,6 +5,7 @@
     "REG_F_file": "hardware\\CPU\\F.json",
     "REG_status_file" : "hardware\\CPU\\status.json",
     "STORAGE_file" : "hardware\\DISK",
+    "PhseX_library": "hardware\\DISK\\system\\phsex\\library",
     "memory_size" : 1024,
     "reg_set" : {
         "reg_width" : 8,
