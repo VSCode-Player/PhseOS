@@ -1,3 +1,8 @@
 *.pyc
 __pycache__\
+<<<<<<< HEAD
 clean_env.bat
+=======
+clean_env.bat
+.gitignore
+>>>>>>> 084cd9ef07b1eeacbee739c2abac3e73d7de1079
