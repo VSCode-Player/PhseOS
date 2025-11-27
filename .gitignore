@@ -1,2 +1,4 @@
 *.pyc
 __pycache__\
+clean_env.bat
+.gitignore
