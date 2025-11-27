@@ -1,1 +1,2 @@
-ADD R0,R1
+LOAD stdio
+MOV R0,R1
