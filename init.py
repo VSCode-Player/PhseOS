@@ -1,32 +1,41 @@
 import json
+from pathlib import Path
+from PhseXlib.op_lib import op_stop_os
 from os.path import exists,isdir,isfile
 
-with open("build.json","r",encoding="utf-8") as build_info:
-    build_dict = json.loads(build_info.read())
+CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
+RAM_addr_len = len(hex(CONFIG["memory_size"])) if CONFIG["Base"] == 2 else len(CONFIG["memory_size"])
+REG_addr_len = len(hex(CONFIG["memory_size"]))
 
-    if exists(build_dict["RAM_file"]) and isfile(build_dict["RAM_file"]): # 如果内存文件存在且是文件
-        if exists(build_dict["REG_file"]) and isfile(build_dict["REG_file"]): # 如果寄存器文件存在且是文件
-            if exists(build_dict["STORAGE_file"]) and isdir(build_dict["STORAGE_file"]): # 如果硬盘文件夹存在且是文件夹
-                if exists(build_dict["RAM_status_file"]) and isfile(build_dict["RAM_status_file"]): # 如果内存状态文件存在且是个文件
-                    if exists(build_dict["REG_status_file"]) and isfile(build_dict["REG_status_file"]): # 如果寄存器状态文件存在且是个文件
-                        if exists(build_dict["REG_F_file"]) and isfile(build_dict["REG_F_file"]):
-                            with open(build_dict["RAM_file"],"w",encoding="utf-8") as RAM_file: # 打开内存文件为RAM_file
-                                with open(build_dict["REG_file"],"w",encoding="utf-8") as REG_file: # 打开寄存器文件为REG_file
-                                    with open(build_dict["RAM_status_file"],"w",encoding="utf-8") as RAM_status: # 打开内存占用状态文件为RAM_status
-                                        with open(build_dict["REG_status_file"],"w",encoding="utf-8") as REG_status: # 打开寄存器占用状态为REG_status
-                                            with open(build_dict["REG_F_file"],"w",encoding="utf-8") as REG_F_file: # 打开寄存器特殊位文件为REG_F_file
-                                                RAM_file.write(json.dumps({f"0x{i:04X}":"" for i in range(0,build_dict["memory_size"])})) # 写入内存到RAM_file.json
-                                                REG_file.write(json.dumps({f"R{i}":"0"*build_dict["reg_set"]["reg_width"] for i in range(0,build_dict["reg_set"]["reg_count"])}))# 写入寄存器数据到REG_file.json
-                                                RAM_status.write(json.dumps({f"0x{i:04X}":False for i in range(0,build_dict["memory_size"])})) # 写入内存状态到status.json
-                                                REG_status.write(json.dumps({f"R{i}":False for i in range(0,build_dict["reg_set"]["reg_count"])})) # 写入寄存器数据到REG_file.json
-                                                REG_F_file.write(json.dumps({"LX":0}))
+def os_init(base):
+    if base == 2:
+        RAM_dict = {f"{i:#010x}":0 for i in range(CONFIG["memory_size"])}
+        REG_dict = {f"R{str(i)}":0 for i in range(CONFIG["reg_set"]["reg_count"])}
+        Path(CONFIG["RAM_file"]).open("w",encoding="utf-8").write(json.dumps(RAM_dict))
+        Path(CONFIG["REG_file"]).open("w",encoding="utf-8").write(json.dumps(REG_dict))
+    elif base == 10:
+        RAM_dict = {f"{i:#010x}":0 for i in range(CONFIG["memory_size"])}
+        REG_dict = {f"R{i*CONFIG["reg_set"]["reg_width"]}":0 for i in range(CONFIG["reg_set"]["reg_count"])}
+        Path(CONFIG["RAM_file"]).open("w",encoding="utf-8").write(json.dumps(RAM_dict))
+        Path(CONFIG["REG_file"]).open("w",encoding="utf-8").write(json.dumps(REG_dict))
+
+if exists(CONFIG["RAM_file"]) and isfile(CONFIG["RAM_file"]):
+    if exists(CONFIG["REG_file"]) and isfile(CONFIG["REG_file"]): 
+        if exists(CONFIG["RAM_status_file"]) and isfile(CONFIG["RAM_status_file"]):
+            if exists(CONFIG["REG_flag_file"]) and isfile(CONFIG["REG_flag_file"]):
+                if exists(CONFIG["REG_status_file"]) and isfile(CONFIG["REG_status_file"]):
+                    if exists(CONFIG["STORAGE_dir"]) and isdir(CONFIG["STORAGE_dir"]):
+                        os_init(2)
                     else:
-                        print("Register Status file not found")
+                        op_stop_os(f"STORAGE folder '{CONFIG["STORAGE_dir"]}' not found.",1)
                 else:
-                    print("Memory Status file not found")
+                    op_stop_os(f"REG status file '{CONFIG["REG_status_file"]}' not found.",1)
             else:
-                print("Disk not found") # 硬盘文件未找到
+                op_stop_os(f"REG flag file '{CONFIG["REG_flag_file"]}' not found.",1)
         else:
-            print("Register not found") # 寄存器未找到
+            op_stop_os(f"RAM status file '{CONFIG["RAM_status_file"]}' not found.",1)
     else:
-        print("Memory not found") # 内存文件未找到
+        op_stop_os(f"REG file '{CONFIG["REG_file"]}' not found.",1)
+else:
+    op_stop_os(f"RAM file '{CONFIG["RAM_file"]}' not found.",1)
+
