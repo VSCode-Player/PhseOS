@@ -2,10 +2,10 @@
     "RAM_file" : "hardware\\RAM\\memory.json",
     "RAM_status_file" : "hardware\\RAM\\status.json",
     "REG_file" : "hardware\\CPU\\register.json",
-    "REG_F_file": "hardware\\CPU\\F.json",
+    "REG_flag_file": "hardware\\CPU\\F.json",
     "REG_status_file" : "hardware\\CPU\\status.json",
-    "STORAGE_file" : "hardware\\DISK",
-    "PhseX_library": "hardware\\DISK\\system\\phsex\\library",
+    "STORAGE_dir" : "hardware\\DISK",
+    "PhseX_library":"hardware\\DISK\\system\\phsex\\library",
     "memory_size" : 1024,
     "reg_set" : {
         "reg_width" : 8,

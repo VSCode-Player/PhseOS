@@ -1,2 +1,2 @@
 LOAD stdio
-MOV R0,R1
+MOV "H",R0

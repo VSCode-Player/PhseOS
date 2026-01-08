@@ -19,7 +19,7 @@ for line in code_line:
     
 for code in code_list:
     if code["name"] == "LOAD":
-        pack_path = os.path.join(CONFIG["STORAGE_file"],
+        pack_path = os.path.join(CONFIG["STORAGE_dir"],
                                  "system/phsex/library", code["args"])
         pkg_file = os.path.join(pack_path, "package.py")
         if os.path.exists(pkg_file):
