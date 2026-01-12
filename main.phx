@@ -1,2 +1,2 @@
 LOAD stdio
-MOV "H",R0
+MSG "Hello,world!",b00000000

@@ -2,9 +2,11 @@ import json
 from pathlib import Path
 import importlib.util
 import os
+import re
 
 CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
 CODE = Path("main.phx").open("r",encoding="utf-8").read()
+args_partten = r',(?=(?:[^"]*"[^"]*")*[^"]*$)'
 
 code_line = CODE.split("\n")
 imported_package = []
@@ -32,5 +34,5 @@ for code in code_list:
     else:
         for i in imported_package:
             if code["name"] in i:
-                args = code["args"].split(",")
+                args = [a.strip() for a in re.split(args_partten, code['args'])]
                 i[code["name"]](*args)

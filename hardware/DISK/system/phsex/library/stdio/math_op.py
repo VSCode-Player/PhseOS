@@ -1,10 +1,9 @@
 from PhseXlib.addres import addres_transformer
-from PhseXlib.op_lib import op_write,op_stop_os
-from sys import exit
+from PhseXlib.op_lib import op_write,op_stop_os,op_data_transform
+from PhseXlib.locals import * # type: ignore
 import json
-from pathlib import Path
 
-CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
+# CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
 
 def add(first_addr, second_addr):
     FIRST_ADDR = addres_transformer(first_addr)    # 第一个地址的文件数据，类型dict
@@ -16,8 +15,8 @@ def add(first_addr, second_addr):
             FIRST_DICT = json.load(FIRST_FILE)
             SECOND_DICT = json.load(SECOND_FILE)
             # 算出结果并写入
-            result = FIRST_DICT[first_addr] + SECOND_DICT[second_addr]
-            op_write(result,SECOND_ADDR)
+            result = int(FIRST_DICT[first_addr],2) + int(SECOND_DICT[second_addr],2)
+            op_write(op_data_transform(str(result),INT_TO_BIN),SECOND_ADDR)
 
 def sub(first_addr, second_addr):
     FIRST_ADDR = addres_transformer(first_addr)    # 第一个地址的文件数据，类型dict
@@ -29,8 +28,8 @@ def sub(first_addr, second_addr):
             FIRST_DICT = json.load(FIRST_FILE)
             SECOND_DICT = json.load(SECOND_FILE)
             # 算出结果并写入
-            result = FIRST_DICT[first_addr] - SECOND_DICT[second_addr]
-            op_write(result,SECOND_ADDR)
+            result = int(FIRST_DICT[first_addr],2) - int(SECOND_DICT[second_addr],2)
+            op_write(op_data_transform(str(result),INT_TO_BIN),SECOND_ADDR)
 
 def mul(first_addr, second_addr):
     FIRST_ADDR = addres_transformer(first_addr)    # 第一个地址的文件数据，类型dict
@@ -42,8 +41,8 @@ def mul(first_addr, second_addr):
             FIRST_DICT = json.load(FIRST_FILE)
             SECOND_DICT = json.load(SECOND_FILE)
             # 算出结果并写入
-            result = FIRST_DICT[first_addr] * SECOND_DICT[second_addr]
-            op_write(result,SECOND_ADDR)
+            result = int(FIRST_DICT[first_addr],2) * int(SECOND_DICT[second_addr],2)
+            op_write(op_data_transform(str(result),INT_TO_BIN),SECOND_ADDR)
 
 def div(first_addr, second_addr):
     FIRST_ADDR = addres_transformer(first_addr)    # 第一个地址的文件数据，类型dict
@@ -55,9 +54,9 @@ def div(first_addr, second_addr):
             FIRST_DICT = json.load(FIRST_FILE)
             SECOND_DICT = json.load(SECOND_FILE)
 
-            if SECOND_DICT[second_addr] == 0:
+            if int(SECOND_DICT[second_addr],2) == 0:
                 op_stop_os(f"The divisor cannot be zero",1)
 
             # 算出结果并写入
-            result = FIRST_DICT[first_addr] / SECOND_DICT[second_addr]
-            op_write(result,SECOND_ADDR)
+            result = int(FIRST_DICT[first_addr],2) / int(SECOND_DICT[second_addr],2)
+            op_write(op_data_transform(str(result),INT_TO_BIN),SECOND_ADDR)

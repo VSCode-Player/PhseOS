@@ -12,10 +12,12 @@ def os_init():
     REG_dict = {f"R{str(i)}":"00000000" for i in range(CONFIG["reg_set"]["reg_count"])}
     RAM_status_dict = {f"{i:#010x}":"free" for i in range(CONFIG["memory_size"])}
     REG_status_dict = {f"R{str(i)}":"free" for i in range(CONFIG["reg_set"]["reg_count"])}
+    REG_flag_dict = {"PC":""}
     Path(CONFIG["RAM_file"]).open("w",encoding="utf-8").write(json.dumps(RAM_dict))
     Path(CONFIG["REG_file"]).open("w",encoding="utf-8").write(json.dumps(REG_dict))
     Path(CONFIG["RAM_status_file"]).open("w",encoding="utf-8").write(json.dumps(RAM_status_dict))
     Path(CONFIG["REG_status_file"]).open("w",encoding="utf-8").write(json.dumps(REG_status_dict))
+    Path(CONFIG["REG_flag_file"]).open("w",encoding="utf-8").write(json.dumps(REG_flag_dict))
 
 if exists(CONFIG["RAM_file"]) and isfile(CONFIG["RAM_file"]):
     if exists(CONFIG["REG_file"]) and isfile(CONFIG["REG_file"]): 
