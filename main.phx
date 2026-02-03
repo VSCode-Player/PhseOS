@@ -1,2 +1,4 @@
 LOAD stdio
+MSG "\nHello, World from String.\n"
+SEF "Hello, World from flag", PC
 MSG
