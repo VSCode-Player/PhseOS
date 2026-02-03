@@ -13,11 +13,14 @@ imported_package = []
 code_list = []
 
 for line in code_line:
-    code_list.append(
-        {
-            "name":line[:line.find(" ")].lstrip(), 
-            "args":line[line.find(" "):].lstrip()
-            })
+    code_block_dict = {}
+    if " " in line:
+        code_block_dict["name"] = line[:line.find(" ")].lstrip()
+        code_block_dict["args"] = line[line.find(" "):].lstrip()
+    else:
+        code_block_dict["name"] = line
+        code_block_dict["args"] = ""
+    code_list.append(code_block_dict)
     
 for code in code_list:
     if code["name"] == "LOAD":

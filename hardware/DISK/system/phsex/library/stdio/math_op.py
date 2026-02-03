@@ -60,3 +60,4 @@ def div(first_addr, second_addr):
             # 算出结果并写入
             result = int(FIRST_DICT[first_addr],2) / int(SECOND_DICT[second_addr],2)
             op_write(op_data_transform(str(result),INT_TO_BIN),SECOND_ADDR)
+

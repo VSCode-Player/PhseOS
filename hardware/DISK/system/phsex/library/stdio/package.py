@@ -16,6 +16,7 @@ data_spec = importlib.util.spec_from_file_location("data_op",data_op_path)
 data_module = importlib.util.module_from_spec(data_spec) # type: ignore
 data_spec.loader.exec_module(data_module) # type: ignore
 
+# 导入基本输出模块
 output_op_path = os.path.join(CONFIG["PhseX_library"],"stdio","output_op.py")
 output_spec = importlib.util.spec_from_file_location("output_op",output_op_path)
 output_module = importlib.util.module_from_spec(output_spec) # type: ignore
@@ -26,6 +27,9 @@ EXPORT = {
     "SUB":math_module.sub,
     "MUL":math_module.mul,
     "DIV":math_module.div,
+    "SHL":data_module.left_shift,
+    "SHR":data_module.right_shift,
     "MOV":data_module.mov,
-    "MSG":output_module.msg
+    "SEF":data_module.set_flag,
+    "MSG":output_module.msg,
 }

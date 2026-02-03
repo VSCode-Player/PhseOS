@@ -1,16 +1,24 @@
 from PhseXlib.locals import * # type: ignore
-
+from pathlib import Path
+import json
 Encode_dict = GetEncoding("PhseEncode")
-format_list = {"n":"\n"}
+format_list = {"n":"\n", "t":"\t"}
 
 def msg(*string):
-    for i in string:
-        if i[0] == "b":
-            print(Encode_dict[i[1:]])
-        else:
-            for j,k in zip(i[1:-1],range(len(i))):
-                if j == "\\":
-                    print(format_list[i[k+1]],end="")
-                else:
-                    print(j, end="")
-                # print(i[1:-1])
+    if string == ("",): # 判断是否输出标签PC的内容
+        print(json.load(
+            Path(CONFIG["REG_flag_file"]).open("r",encoding="utf-8"))["PC"]
+            )
+    else:    
+        for i in string:
+            if not i:
+                continue
+            if i[0] == "b":
+                print(Encode_dict[i[1:]])
+            else:
+                # 保留原来去掉首尾字符的行为（如果字符串有引号），否则使用原串
+                inner = i[1:-1] if len(i) >= 2 else i
+                # 使用映射进行字符串替换，例如 "\\n" -> "\n"
+                for key, val in format_list.items():
+                    inner = inner.replace("\\" + key, val)
+                print(inner, end="")

@@ -1,7 +1,7 @@
 import json
 import re
 from PhseXlib.addres import addres_transformer
-from PhseXlib.op_lib import op_write,op_data_transform
+from PhseXlib.op_lib import *
 from PhseXlib.locals import * # type: ignore
 from pathlib import Path
 
@@ -16,6 +16,35 @@ def mov(first_addr,second_addr):
         op_write(op_data_transform(first_addr_dict["key"],INT_TO_BIN),second_addr_dict)
     else:
         with open(first_addr_dict["file"],"r+",encoding="utf-8") as first_file:
-            with open(second_addr_dict["file"],"r+",encoding="utf-8") as second_file:
+            # with open(second_addr_dict["file"],"r+",encoding="utf-8") as second_file:
                 first_file_dict = json.load(first_file)
                 op_write(first_file_dict[first_addr_dict["key"]],second_addr)
+
+def left_shift(addr, num):
+    addr = addres_transformer(addr)
+
+    with open(addr["file"],"r+",encoding="utf-8") as FILE:
+        FILE_DICT = json.load(FILE)
+        op_write(FILE_DICT[addr["key"]][int(num):] + "0"*int(num),addr) # 左移，高位补0
+
+def right_shift(addr, num):
+    addr = addres_transformer(addr)
+
+    with open(addr["file"],"r+",encoding="utf-8") as FILE:
+        FILE_DICT = json.load(FILE)
+        op_write("0"*int(num) + FILE_DICT[addr["key"]][:-int(num)],addr) # 右移，高位补0
+
+def set_flag(data, flag):
+    with open(CONFIG["REG_flag_file"],"r+",encoding="utf-8") as REG_F_file:
+        REG_F_dict = json.load(REG_F_file)
+
+        if flag in REG_F_dict:
+            try:
+                op_write(int(data), {"file":CONFIG["REG_flag_file"],"key":flag})
+            except ValueError:
+                if data[0] == "\"" and data[-1] == "\"":
+                    op_write(data[1:-1], {"file":CONFIG["REG_flag_file"],"key":flag})
+                else:
+                    op_stop_os(f"Invalid data type for flag '{flag}'.",1)
+        else:
+            op_stop_os(f"Flag '{flag}' not found.",1)

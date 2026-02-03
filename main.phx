@@ -1,2 +1,2 @@
 LOAD stdio
-MSG "Hello","\n","world"
+MSG
