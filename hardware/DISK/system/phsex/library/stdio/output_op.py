@@ -2,7 +2,6 @@ from PhseXlib.locals import * # type: ignore
 from pathlib import Path
 import json
 Encode_dict = GetEncoding("PhseEncode")
-format_list = {"n":"\n", "t":"\t"}
 
 def msg(*string):
     if string == ("",): # 判断是否输出标签PC的内容
@@ -19,6 +18,6 @@ def msg(*string):
                 # 保留原来去掉首尾字符的行为（如果字符串有引号），否则使用原串
                 inner = i[1:-1] if len(i) >= 2 else i
                 # 使用映射进行字符串替换，例如 "\\n" -> "\n"
-                for key, val in format_list.items():
+                for key, val in format_dict.items(): # format_dict在local.py中定义
                     inner = inner.replace("\\" + key, val)
                 print(inner, end="")

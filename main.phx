@@ -1,4 +1,11 @@
+LOAD FileIO
 LOAD stdio
-MSG "\nHello, World from String.\n"
-SEF "Hello, World from flag", PC
-MSG
+
+MSG "Creating file\n"
+CRT_F example.txt
+
+MSG "Writing file\n"
+WRT_F "Hello,world\nHappy new year!", example.txt, w
+
+; MSG "Deleting file\n"
+; DEL_F example.txt
