@@ -1,4 +1,6 @@
 from PhseXlib.locals import * # type: ignore
+from PhseXlib.addres import addres_transformer
+from phsex import symbol_table
 from pathlib import Path
 import json
 Encode_dict = GetEncoding("PhseEncode")
