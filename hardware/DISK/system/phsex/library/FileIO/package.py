@@ -11,4 +11,6 @@ EXPORT = {
     "CRT_F":file_op_module.create_file,
     "DEL_F":file_op_module.delete_file,
     "WRT_F":file_op_module.write_file,
+    "CRT_D":file_op_module.create_dir,
+    "DEL_D":file_op_module.delete_dir
 }

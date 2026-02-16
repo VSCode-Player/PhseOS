@@ -31,5 +31,7 @@ EXPORT = {
     "SHR":data_module.right_shift,
     "MOV":data_module.mov,
     "SEF":data_module.set_flag,
+    "SES":data_module.set_status,
+    "INP":data_module.get_input,
     "MSG":output_module.msg,
 }

@@ -1,5 +1,4 @@
 import json
-import re
 from PhseXlib.addres import addres_transformer
 from PhseXlib.op_lib import *
 from PhseXlib.locals import * # type: ignore
@@ -48,3 +47,28 @@ def set_flag(data, flag):
                     op_stop_os(f"Invalid data type for flag '{flag}'.",1)
         else:
             op_stop_os(f"Flag '{flag}' not found.",1)
+
+def set_status(addr:str, status:str):
+    addr_dict = addres_transformer(addr)
+    status_file = os.path.join(os.path.dirname(addr_dict["file"]), "status.json")
+
+    status_dict = json.load(Path(status_file).open("r+",encoding="utf-8"))
+    if addr_dict["key"] in status_dict:
+        status_dict[addr_dict["key"]] = status
+        with open(status_file, "w", encoding="utf-8") as f:
+            json.dump(status_dict, f)
+
+def get_input(addr:str, type:str):
+    addr_dcict = addres_transformer(addr)
+    data = input()
+    if len(data) == 1:
+        if type == "INT":
+            data = op_data_transform(data, INT_TO_BIN) # type: ignore
+        elif type == "STRING":
+            data = op_data_transform(data, CHAR_TO_BIN) # type: ignore
+        else:
+            op_stop_os(f"Invalid data type '{type}' for input.",1)
+    else:
+        op_stop_os("Only single character input is supported.",1)
+    
+    op_write(data, addr_dcict)

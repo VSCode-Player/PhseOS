@@ -1,11 +1,5 @@
-LOAD FileIO
 LOAD stdio
 
-MSG "Creating file\n"
-CRT_F example.txt
-
-MSG "Writing file\n"
-WRT_F "Hello,world\nHappy new year!", example.txt, w
-
-; MSG "Deleting file\n"
-; DEL_F example.txt
+MOV 1, R0
+POINT A, R0
+MSG [A]

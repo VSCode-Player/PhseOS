@@ -21,25 +21,25 @@ def REG_init():
     Path(CONFIG["REG_file"]).open("w",encoding="utf-8").write(json.dumps(REG_dict))
     Path(CONFIG["REG_status_file"]).open("w",encoding="utf-8").write(json.dumps(REG_status_dict))
     Path(CONFIG["REG_flag_file"]).open("w",encoding="utf-8").write(json.dumps(REG_flag_dict))
-
-if exists(CONFIG["RAM_file"]) and isfile(CONFIG["RAM_file"]):
-    if exists(CONFIG["REG_file"]) and isfile(CONFIG["REG_file"]): 
-        if exists(CONFIG["RAM_status_file"]) and isfile(CONFIG["RAM_status_file"]):
-            if exists(CONFIG["REG_flag_file"]) and isfile(CONFIG["REG_flag_file"]):
-                if exists(CONFIG["REG_status_file"]) and isfile(CONFIG["REG_status_file"]):
-                    if exists(CONFIG["STORAGE_dir"]) and isdir(CONFIG["STORAGE_dir"]):
-                        RAM_init()
-                        REG_init()
+def init(): 
+    if exists(CONFIG["RAM_file"]) and isfile(CONFIG["RAM_file"]):
+        if exists(CONFIG["REG_file"]) and isfile(CONFIG["REG_file"]): 
+            if exists(CONFIG["RAM_status_file"]) and isfile(CONFIG["RAM_status_file"]):
+                if exists(CONFIG["REG_flag_file"]) and isfile(CONFIG["REG_flag_file"]):
+                    if exists(CONFIG["REG_status_file"]) and isfile(CONFIG["REG_status_file"]):
+                        if exists(CONFIG["STORAGE_dir"]) and isdir(CONFIG["STORAGE_dir"]):
+                            RAM_init()
+                            REG_init()
+                        else:
+                            op_stop_os(f"STORAGE folder '{CONFIG["STORAGE_dir"]}' not found.",1)
                     else:
-                        op_stop_os(f"STORAGE folder '{CONFIG["STORAGE_dir"]}' not found.",1)
+                        op_stop_os(f"REG status file '{CONFIG["REG_status_file"]}' not found.",1)
                 else:
-                    op_stop_os(f"REG status file '{CONFIG["REG_status_file"]}' not found.",1)
+                    op_stop_os(f"REG flag file '{CONFIG["REG_flag_file"]}' not found.",1)
             else:
-                op_stop_os(f"REG flag file '{CONFIG["REG_flag_file"]}' not found.",1)
+                op_stop_os(f"RAM status file '{CONFIG["RAM_status_file"]}' not found.",1)
         else:
-            op_stop_os(f"RAM status file '{CONFIG["RAM_status_file"]}' not found.",1)
+            op_stop_os(f"REG file '{CONFIG["REG_file"]}' not found.",1)
     else:
-        op_stop_os(f"REG file '{CONFIG["REG_file"]}' not found.",1)
-else:
-    op_stop_os(f"RAM file '{CONFIG["RAM_file"]}' not found.",1)
+        op_stop_os(f"RAM file '{CONFIG["RAM_file"]}' not found.",1)
 
