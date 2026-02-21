@@ -1,7 +1,9 @@
 import json
+import re
 from PhseXlib.addres import addres_transformer
 from PhseXlib.op_lib import *
 from PhseXlib.locals import * # type: ignore
+from phsex import lable_table, imported_package, args_partten
 from pathlib import Path
 
 # CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
@@ -61,14 +63,97 @@ def set_status(addr:str, status:str):
 def get_input(addr:str, type:str):
     addr_dcict = addres_transformer(addr)
     data = input()
-    if len(data) == 1:
-        if type == "INT":
-            data = op_data_transform(data, INT_TO_BIN) # type: ignore
-        elif type == "STRING":
+    if type == "INT":
+        data = op_data_transform(data, INT_TO_BIN) # type: ignore
+    elif type == "STRING":
+        if len(data) == 1:
             data = op_data_transform(data, CHAR_TO_BIN) # type: ignore
         else:
-            op_stop_os(f"Invalid data type '{type}' for input.",1)
+            op_stop_os("Only single character input is supported.",1)
     else:
-        op_stop_os("Only single character input is supported.",1)
+        op_stop_os(f"Invalid data type '{type}' for input.",1)
     
     op_write(data, addr_dcict)
+
+# --- 跳转命令 ---
+def jmp(lable):
+    if lable in lable_table:
+        for i in lable_table[lable]:
+            if i["name"] in imported_package[0]:
+                args = [a.strip() for a in re.split(args_partten, i['args'])]
+                imported_package[0][i["name"]](*args)
+    else:
+        op_stop_os(f"LABLE '{lable}' not found.", 1)
+
+
+def jz(label):
+    with open(CONFIG["REG_flag_file"], "r", encoding="utf-8") as f:
+        cmp = int(json.load(f)["CMP"])
+    if cmp == 0:
+        if label in lable_table:
+            for i in lable_table[label]:
+                if i["name"] in imported_package[0]:
+                    args = [a.strip() for a in re.split(args_partten, i['args'])]
+                    imported_package[0][i["name"]](*args)
+        else:
+            op_stop_os(f"LABLE '{label}' not found.", 1)
+
+def jnz(label):
+    with open(CONFIG["REG_flag_file"], "r", encoding="utf-8") as f:
+        cmp = int(json.load(f)["CMP"])
+    if cmp != 0:
+        if label in lable_table:
+            for i in lable_table[label]:
+                if i["name"] in imported_package[0]:
+                    args = [a.strip() for a in re.split(args_partten, i['args'])]
+                    imported_package[0][i["name"]](*args)
+        else:
+            op_stop_os(f"LABLE '{label}' not found.", 1)
+
+def jg(label):
+    with open(CONFIG["REG_flag_file"], "r", encoding="utf-8") as f:
+        cmp = int(json.load(f)["CMP"])
+    if cmp > 0:
+        if label in lable_table:
+            for i in lable_table[label]:
+                if i["name"] in imported_package[0]:
+                    args = [a.strip() for a in re.split(args_partten, i['args'])]
+                    imported_package[0][i["name"]](*args)
+        else:
+            op_stop_os(f"LABLE '{label}' not found.", 1)
+
+def jl(label):
+    with open(CONFIG["REG_flag_file"], "r", encoding="utf-8") as f:
+        cmp = int(json.load(f)["CMP"])
+    if cmp < 0:
+        if label in lable_table:
+            for i in lable_table[label]:
+                if i["name"] in imported_package[0]:
+                    args = [a.strip() for a in re.split(args_partten, i['args'])]
+                    imported_package[0][i["name"]](*args)
+        else:
+            op_stop_os(f"LABLE '{label}' not found.", 1)
+
+def jge(label):
+    with open(CONFIG["REG_flag_file"], "r", encoding="utf-8") as f:
+        cmp = int(json.load(f)["CMP"])
+    if cmp >= 0:
+        if label in lable_table:
+            for i in lable_table[label]:
+                if i["name"] in imported_package[0]:
+                    args = [a.strip() for a in re.split(args_partten, i['args'])]
+                    imported_package[0][i["name"]](*args)
+        else:
+            op_stop_os(f"LABLE '{label}' not found.", 1)
+
+def jle(label):
+    with open(CONFIG["REG_flag_file"], "r", encoding="utf-8") as f:
+        cmp = int(json.load(f)["CMP"])
+    if cmp <= 0:
+        if label in lable_table:
+            for i in lable_table[label]:
+                if i["name"] in imported_package[0]:
+                    args = [a.strip() for a in re.split(args_partten, i['args'])]
+                    imported_package[0][i["name"]](*args)
+        else:
+            op_stop_os(f"LABLE '{label}' not found.", 1)

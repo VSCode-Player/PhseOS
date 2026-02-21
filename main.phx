@@ -1,5 +1,14 @@
 LOAD stdio
 
-MOV 1, R0
-POINT A, R0
-MSG [A]
+LABLE test:
+MSG "Hello"
+LABLE_END
+
+MOV 0, R0
+
+MSG "input:"
+INP R1, INT
+
+CMP R0, R1
+
+JNZ test

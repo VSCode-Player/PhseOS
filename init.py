@@ -17,7 +17,7 @@ def RAM_init():
 def REG_init():
     REG_dict = {f"R{str(i)}":"00000000" for i in range(CONFIG["reg_set"]["reg_count"]) }
     REG_status_dict = {f"R{str(i)}":"free" for i in range(CONFIG["reg_set"]["reg_count"]) }
-    REG_flag_dict = {"PC":""}
+    REG_flag_dict = {"PC":"", "CMP":0}
     Path(CONFIG["REG_file"]).open("w",encoding="utf-8").write(json.dumps(REG_dict))
     Path(CONFIG["REG_status_file"]).open("w",encoding="utf-8").write(json.dumps(REG_status_dict))
     Path(CONFIG["REG_flag_file"]).open("w",encoding="utf-8").write(json.dumps(REG_flag_dict))
