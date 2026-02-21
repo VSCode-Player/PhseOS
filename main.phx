@@ -1,14 +1,11 @@
 LOAD stdio
 
 LABLE test:
-MSG "Hello"
+POINT A, R0
+MSG [A], INT
 LABLE_END
 
-MOV 0, R0
+MSG "请输入数字:"
+INP R0, INT
 
-MSG "input:"
-INP R1, INT
-
-CMP R0, R1
-
-JNZ test
+test

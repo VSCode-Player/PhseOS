@@ -58,6 +58,9 @@ def run_code(file):
                     elif block["name"] in imported_package[0]:
                         args = [a.strip() for a in re.split(args_partten, block['args'])]
                         imported_package[0][block["name"]](*args)
+                    elif block["name"] == "POINT":
+                        args = [a.strip() for a in re.split(args_partten, block['args'])]
+                        symbol_table[args[0]] = args[1]  # 直接存 name: addr
             else:
                 for i in imported_package:
                     if code["name"] in i:
