@@ -35,6 +35,7 @@ EXPORT = {
     "SES":data_module.set_status,
     "INP":data_module.get_input,
     "MSG":output_module.msg,
+    "OS_STOP":output_module.OS_STOP,
     "JMP":data_module.jmp,
     "JZ":data_module.jz,
     "JNZ":data_module.jnz,

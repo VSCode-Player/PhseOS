@@ -62,6 +62,7 @@ def div(first_addr, second_addr):
             op_write(op_data_transform(str(result),INT_TO_BIN),SECOND_ADDR)
 
 def cmp(first_addr, second_addr):
+
     FIRST_ADDR = addres_transformer(first_addr)    # 第一个地址的文件数据，类型dict
     SECOND_ADDR = addres_transformer(second_addr)  # 第二个地址的文件数据，类型dict
 

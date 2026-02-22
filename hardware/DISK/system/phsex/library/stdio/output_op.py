@@ -38,3 +38,6 @@ def msg(*string):
                 for key, val in format_dict.items(): # format_dict在local.py中定义
                     inner = inner.replace(key, val)
                 print(inner, end="")
+
+def OS_STOP(*args):
+    op_stop_os("OS stopped by OS_STOP instruction.", 0)

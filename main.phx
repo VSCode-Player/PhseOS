@@ -1,11 +1,18 @@
 LOAD stdio
 
-LABLE test:
-POINT A, R0
-MSG [A], INT
+MOV 0, R0
+MOV 1, R1
+
+LABLE for_cond:
+CMP R0, 10
+JGE for_end
+MSG "Hello\n"
+ADD R1, R0
+JMP for_cond
 LABLE_END
 
-MSG "请输入数字:"
-INP R0, INT
+LABLE for_end:
+OS_STOP
+LABLE_END
 
-test
+for_cond
