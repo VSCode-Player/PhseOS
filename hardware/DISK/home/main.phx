@@ -1,0 +1,33 @@
+LOAD stdio
+
+; reg_a = R1
+; reg_b = R2
+; reg_c = R3
+; 由于从0开始太容易看错所以从R1开始用
+
+MOV 5,R1
+MOV 10,R2
+MOV 0,R3
+
+; reg_c = reg_a + reg_b
+MOV R1, R3
+ADD R2,R3
+
+; reg_a = reg_c
+MOV R3,R1
+
+; reg_b = reg_c * 2
+MOV R3,R2
+MUL 2,R2
+
+POINT reg_a, R1
+POINT reg_b, R2
+POINT reg_c, R3
+
+MSG [reg_a],INT
+MSG "\n"
+
+MSG [reg_b],INT
+MSG "\n"
+
+MSG [reg_c],INT

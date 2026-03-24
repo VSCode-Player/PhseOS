@@ -13,12 +13,12 @@ def msg(*string):
     if string == ("",): # 判断是否输出标签PC的内容
         print(json.load(
             Path(CONFIG["REG_flag_file"]).open("r",encoding="utf-8"))["PC"]
-            )
+            ,end="")
     elif re.fullmatch(point, string[0]):
         if len(string) == 2:
             if string[1] == "INT":
                 data_addr_dict = addres_transformer(symbol_table[string[0][1:-1]])
-                print(int(json.load(Path(data_addr_dict["file"]).open("r",encoding="utf-8"))[data_addr_dict["key"]],base=2))
+                print(int(json.load(Path(data_addr_dict["file"]).open("r",encoding="utf-8"))[data_addr_dict["key"]],base=2),end="")
             elif string[1] == "STRING":
                 print(symbol_table[string[0][1:-1]])
             else:

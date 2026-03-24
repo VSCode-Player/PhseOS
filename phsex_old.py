@@ -7,6 +7,7 @@ REG_PATTERN = re.compile(r'^R\d+$')
 IMM_PATTERN = re.compile(r'^i\d+$')
 STR_PATTERN = re.compile(r'^s"([^"]*)"$')
 CONFIG = json.loads(Path("build.json").read_text())
+file_path = os.path.join(CONFIG["STORAGE_dir"],"home","main.phx")
 
 # ---------- 地址解析器 ----------
 def parse_operand(op: str):
@@ -139,7 +140,7 @@ KEYWORD_TABLE = {
 
 # ---------- 主循环 ----------
 if __name__ == "__main__":
-    src_lines = Path("main.phx").read_text(encoding="utf-8").splitlines()
+    src_lines = Path(file_path).read_text(encoding="utf-8").splitlines()
     in_label_block = False
     for raw in src_lines:
         line = raw.split(";;", 1)[0].strip()
