@@ -1,3 +1,4 @@
+import phsex
 from init import init,CONFIG
 from phsex import run_code
 from os.path import join

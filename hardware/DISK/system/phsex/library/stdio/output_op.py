@@ -7,37 +7,40 @@ import json
 import re
 
 Encode_dict = GetEncoding("PhseEncode")
-point = re.compile(r"^\[(?![0-9]+$)[a-zA-Z0-9_]+\]$")
 
 def msg(*string):
-    if string == ("",): # 判断是否输出标签PC的内容
-        print(json.load(
-            Path(CONFIG["REG_flag_file"]).open("r",encoding="utf-8"))["PC"]
-            ,end="")
-    elif re.fullmatch(point, string[0]):
-        if len(string) == 2:
-            if string[1] == "INT":
-                data_addr_dict = addres_transformer(symbol_table[string[0][1:-1]])
-                print(int(json.load(Path(data_addr_dict["file"]).open("r",encoding="utf-8"))[data_addr_dict["key"]],base=2),end="")
-            elif string[1] == "STRING":
-                print(symbol_table[string[0][1:-1]])
-            else:
-                op_stop_os(f"Unsupported type for msg: {string[1]}",1)
-        else:
-            op_stop_os(f"MSG pointer mode need 3 arguments, but got {len(string)}",1)
-    else:    
-        for i in string:
-            if not i:
-                continue
-            if i[0] == "b":
-                print(Encode_dict[i[1:]])
-            else:
-                # 保留原来去掉首尾字符的行为（如果字符串有引号），否则使用原串
-                inner = i[1:-1] if len(i) >= 2 else i
-                # 使用映射进行字符串替换，例如 "\\n" -> "\n"
-                for key, val in format_dict.items(): # format_dict在local.py中定义
-                    inner = inner.replace(key, val)
-                print(inner, end="")
+    '''
+    用法:
+    MSG "STR"
+    MSG [POINT], INT/STR    ;二进制转字符串字符串仅支持PhseEncode字符集
+    MSG                     ;打印PC标签的内容
+    '''
+    
+    if string:  # 如果有参数
+        first_arg = addres_transformer(string[0]) # 解析第一个参数
+        if first_arg["file"] in ["TYPE:STRING", "TYPE:POINT"]:
+            if first_arg["file"] == "TYPE:STRING": # 如果是字符串
+                print(first_arg["key"])
+
+            else: # 如果是指针
+                second_arg = string[1] if len(string) >= 2 else op_stop_os("MSG Point mode need 2 arguments.",1)
+
+                point_name = first_arg["key"]
+                if point_name in symbol_table:
+                    point_addr = symbol_table[point_name]
+                    point_addr_dict = addres_transformer(point_addr)
+                    point_data = json.load(Path(point_addr_dict["file"]).open("r",encoding="utf-8"))[point_addr_dict["key"]]
+                    if second_arg in ["INT","STR"]:
+                        if second_arg == "INT":
+                            print(op_data_transform(point_data, BIN_TO_INT))
+                        elif second_arg == "STRING":
+                            print(op_data_transform(point_data, BIN_TO_CHAR))
+                    else:
+                        op_stop_os("MSG Point mode second argument must be INT or STR.",1)
+                else:
+                    op_stop_os(f"{point_name} is not found in symbol table.",1)
+    else:
+        op_stop_os("MSG must use 1 argument or use more.",1)
 
 def OS_STOP(*args):
     op_stop_os("OS stopped by OS_STOP instruction.", 0)
