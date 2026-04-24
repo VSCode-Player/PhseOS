@@ -7,6 +7,7 @@ import json
 import re
 
 Encode_dict = GetEncoding("PhseEncode")
+Escape_char = {"\\n":"\n","\\t":"\t"}
 
 def msg(*string):
     '''
@@ -20,7 +21,10 @@ def msg(*string):
         first_arg = addres_transformer(string[0]) # 解析第一个参数
         if first_arg["file"] in ["TYPE:STRING", "TYPE:POINT"]:
             if first_arg["file"] == "TYPE:STRING": # 如果是字符串
-                print(first_arg["key"])
+                result = first_arg["key"]
+                for i in Escape_char.items():
+                    result = result.replace(i[0],i[1])
+                print(result,end="")
 
             else: # 如果是指针
                 second_arg = string[1] if len(string) >= 2 else op_stop_os("MSG Point mode need 2 arguments.",1)
@@ -32,13 +36,15 @@ def msg(*string):
                     point_data = json.load(Path(point_addr_dict["file"]).open("r",encoding="utf-8"))[point_addr_dict["key"]]
                     if second_arg in ["INT","STR"]:
                         if second_arg == "INT":
-                            print(op_data_transform(point_data, BIN_TO_INT))
-                        elif second_arg == "STRING":
-                            print(op_data_transform(point_data, BIN_TO_CHAR))
+                            print(op_data_transform(point_data, BIN_TO_INT),end="")
+                        elif second_arg == "STR":
+                            print(op_data_transform(point_data, BIN_TO_CHAR),end="")
                     else:
                         op_stop_os("MSG Point mode second argument must be INT or STR.",1)
                 else:
                     op_stop_os(f"{point_name} is not found in symbol table.",1)
+        else:
+            op_stop_os("MSG first argument type must be TYPE:STRING or TYPE:POINT",1)
     else:
         op_stop_os("MSG must use 1 argument or use more.",1)
 
