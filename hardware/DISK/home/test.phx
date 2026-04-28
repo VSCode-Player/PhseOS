@@ -1,0 +1,7 @@
+LOAD stdio
+
+POINT A,R0
+MOV 10,R0
+MOV 2,R1
+
+REM R0,R1

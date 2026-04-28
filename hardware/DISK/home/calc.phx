@@ -10,6 +10,7 @@ MSG "加法: 1\n"
 MSG "减法: 2\n"
 MSG "乘法: 3\n"
 MSG "除法: 4\n"
+MSG "取余: 5\n"
 MSG "请输入你的操作:"
 INP R1, INT
 
@@ -22,17 +23,18 @@ LABLE_END
 
 LABLE sub:
 SUB R0, R2
-
 LABLE_END
 
 LABLE mul:
 MUL R0,R2
-
 LABLE_END
 
 LABLE div:
 DIV R0,R2
+LABLE_END
 
+LABLE rem:
+REM R0,R2
 LABLE_END
 
 CMP R1, 1
@@ -46,6 +48,9 @@ JZ mul
 
 CMP R1, 4
 JZ div
+
+CMP R1, 5
+JZ rem
 
 POINT A, R2
 MSG [A], INT

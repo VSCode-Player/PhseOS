@@ -28,6 +28,7 @@ EXPORT = {
     "MUL":math_module.mul,
     "DIV":math_module.div,
     "CMP":math_module.cmp,
+    "REM":math_module.rem,
     "SHL":data_module.left_shift,
     "SHR":data_module.right_shift,
     "MOV":data_module.mov,
