@@ -7,7 +7,6 @@ import json
 import re
 
 Encode_dict = GetEncoding("PhseEncode")
-Escape_char = {"\\n":"\n","\\t":"\t"}
 
 def msg(*string):
     '''
@@ -22,7 +21,7 @@ def msg(*string):
         if first_arg["file"] in ["TYPE:STRING", "TYPE:POINT"]:
             if first_arg["file"] == "TYPE:STRING": # 如果是字符串
                 result = first_arg["key"]
-                for i in Escape_char.items():
+                for i in format_dict.items():
                     result = result.replace(i[0],i[1])
                 print(result,end="")
 

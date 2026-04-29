@@ -3,6 +3,7 @@ from pathlib import Path
 import importlib.util
 import os
 import re
+import inspect  # 新增：用于获取函数参数信息
 
 CONFIG = json.load(Path("build.json").open("r", encoding="utf-8"))
 args_partten = r',(?=(?:[^"]*"[^"]*")*[^"]*$)'
@@ -77,7 +78,21 @@ def run_code(file):
                     for pkg in imported_package:
                         if block["name"] in pkg:
                             args = [a.strip() for a in re.split(args_partten, block['args'])] if block["args"] else []
-                            pkg[block["name"]](*args)
+                            func = pkg[block["name"]]
+                            try:
+                                sig = inspect.signature(func)
+                                params = list(sig.parameters.values())
+                                # 计算非可变位置/关键字参数的数量
+                                required_count = sum(1 for p in params if p.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD))
+                                
+                                # 如果提供的参数少于定义的数量，则补齐 None
+                                if len(args) < required_count:
+                                    args.extend([None] * (required_count - len(args)))
+                            except Exception:
+                                # 如果无法获取签名（如内置函数），保持原样
+                                pass
+
+                            func(*args)
                             break
             
             # 执行全局普通指令
@@ -85,7 +100,20 @@ def run_code(file):
                 for pkg in imported_package:
                     if code["name"] in pkg:
                         args = [a.strip() for a in re.split(args_partten, code['args'])] if code["args"] else []
-                        pkg[code["name"]](*args)
+                        
+                        # 参数自动补齐逻辑
+                        func = pkg[code["name"]]
+                        try:
+                            sig = inspect.signature(func)
+                            params = list(sig.parameters.values())
+                            required_count = sum(1 for p in params if p.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD))
+                            
+                            if len(args) < required_count:
+                                args.extend([None] * (required_count - len(args)))
+                        except Exception:
+                            pass
+
+                        func(*args)
                         break
 
         # 标签内部内容收集

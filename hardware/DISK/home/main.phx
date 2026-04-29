@@ -1,33 +1,25 @@
 LOAD stdio
 
-; reg_a = R1
-; reg_b = R2
-; reg_c = R3
-; 由于从0开始太容易看错所以从R1开始用
+; 一个可以输出1~10中的偶数的程序
+MOV 1,R0
+MOV 2,R2
+POINT A,R0
 
-MOV 5,R1
-MOV 10,R2
-MOV 0,R3
+LABLE main:
+REM R0,R2,R1
+CMP R1,0
+JZ msg_result
+JNZ countiune
+LABLE_END
 
-; reg_c = reg_a + reg_b
-MOV R1, R3
-ADD R2,R3
-
-; reg_a = reg_c
-MOV R3,R1
-
-; reg_b = reg_c * 2
-MOV R3,R2
-MUL 2,R2
-
-POINT reg_a, R1
-POINT reg_b, R2
-POINT reg_c, R3
-
-MSG [reg_a],INT
+LABLE msg_result:
+MSG [A],INT
 MSG "\n"
+LABLE_END
 
-MSG [reg_b],INT
-MSG "\n"
+LABLE countiune:
+ADD 1,R0
+JMP main
+LABLE_END
 
-MSG [reg_c],INT
+main
