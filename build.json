@@ -7,6 +7,9 @@
     "STORAGE_dir" : "hardware\\DISK",
     "PhseX_library":"hardware\\DISK\\system\\phsex\\library",
     "memory_size" : 1024,
+    "PhseX":{
+        "debug_mode":false
+    },
     "reg_set" : {
         "reg_width" : 8,
         "reg_count" : 8

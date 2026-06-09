@@ -2,7 +2,7 @@ import json
 import re
 import os
 from PhseXlib.addres import addres_transformer
-from PhseXlib.op_lib import *
+from PhseXlib.op_lib import * # type: ignore
 from PhseXlib.locals import * # type: ignore
 from phsex import lable_table, imported_package, args_partten
 from pathlib import Path

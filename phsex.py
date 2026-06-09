@@ -3,19 +3,21 @@ from pathlib import Path
 import importlib.util
 import os
 import re
-import inspect  # 新增：用于获取函数参数信息
+import inspect
+from PhseXlib.op_lib import op_stop_os
 
+# 这部分考虑到时候分散到build.json或者其他配置文件
 CONFIG = json.load(Path("build.json").open("r", encoding="utf-8"))
 args_partten = r',(?=(?:[^"]*"[^"]*")*[^"]*$)'
 lable_partten = r"^(?!\\d+$).+$"
 symbol_table = {}
 lable_table = {}
-imported_package = []
+imported_package = {}
+process_list = []
 
 def run_code(file):
     CODE = Path(file).open("r", encoding="utf-8").read()
     code_line = CODE.split("\n")
-
     code_list = []
     in_lable = False
     current_lable = ""
@@ -47,8 +49,8 @@ def run_code(file):
                     mod = importlib.util.module_from_spec(spec) # type: ignore
                     spec.loader.exec_module(mod) # type: ignore
                     EXPORT = mod.EXPORT
-                    imported_package.append(EXPORT)
-            
+                    # imported_package.append(EXPORT)
+                    imported_package[code["args"]] = EXPORT
             # 定义变量
             elif code["name"] == "POINT":
                 args = [a.strip() for a in re.split(args_partten, code['args'])]
@@ -91,18 +93,20 @@ def run_code(file):
                             except Exception:
                                 # 如果无法获取签名（如内置函数），保持原样
                                 pass
-
+                            
                             func(*args)
+                        else:
+                            op_stop_os(f'"{code["name"]} not found."',1,error_args=f"{code["name"]}") # type: ignore
                             break
             
             # 执行全局普通指令
             else:
-                for pkg in imported_package:
-                    if code["name"] in pkg:
+                for pkg in imported_package.keys():
+                    if code["name"] in imported_package[pkg]:
                         args = [a.strip() for a in re.split(args_partten, code['args'])] if code["args"] else []
                         
                         # 参数自动补齐逻辑
-                        func = pkg[code["name"]]
+                        func = imported_package[pkg][code["name"]]
                         try:
                             sig = inspect.signature(func)
                             params = list(sig.parameters.values())
@@ -112,8 +116,10 @@ def run_code(file):
                                 args.extend([None] * (required_count - len(args)))
                         except Exception:
                             pass
-
+                        
                         func(*args)
+                    else:
+                        op_stop_os(f'"{code["name"]} not found."',1,error_args=f"{code["name"]}") # type: ignore
                         break
 
         # 标签内部内容收集
