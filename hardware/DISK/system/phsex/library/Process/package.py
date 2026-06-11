@@ -8,6 +8,5 @@ request_module = importlib.util.module_from_spec(request_spec) # type: ignore
 request_spec.loader.exec_module(request_module) # type: ignore
 
 EXPORT = {
-    "Process.allocate":request_module.request_memory,
     "Process.create_process":request_module.create_process
 }

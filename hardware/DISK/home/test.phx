@@ -1,3 +1,10 @@
 LOAD stdio
+LOAD Process
 
+LABLE main:
 MSG "Hello World"
+LABLE_END
+
+Process.create_process main
+
+main
