@@ -1,5 +1,7 @@
 import json
 from pathlib import Path
+from PhseXlib.op_lib import op_stop_os
+from PhseXlib.code_expand import memory_usage_check
 import importlib.util
 import os
 import re
@@ -9,8 +11,10 @@ args_partten = r',(?=(?:[^"]*"[^"]*")*[^"]*$)'
 lable_partten = r"^(?!\\d+$).+$"
 symbol_table = {}
 lable_table = {}
-imported_package = []
+imported_package = {}
 process_list = []
+
+
 
 def run_code(file):
     CODE = Path(file).open("r", encoding="utf-8").read()
@@ -47,13 +51,17 @@ def run_code(file):
                     mod = importlib.util.module_from_spec(spec) # type: ignore
                     spec.loader.exec_module(mod) # type: ignore
                     EXPORT = mod.EXPORT
-                    imported_package.append(EXPORT)
+                    imported_package[code["args"]] = EXPORT
+                else:
+                    op_stop_os(f"Package {code["args"]} not found in /system/phsex/library.",1,code["args"])
             
             # 定义变量
             elif code["name"] == "POINT":
                 args = [a.strip() for a in re.split(args_partten, code['args'])]
                 if len(args) >= 2:
                     symbol_table[args[0]] = args[1]
+                else:
+                    op_stop_os("POINT function needs 2 arguments.",1)
             
             # 开始定义标签
             elif code["name"] == "LABLE" and not code["args"].strip().isdigit():
@@ -75,19 +83,52 @@ def run_code(file):
                         continue
 
                     # 执行库函数
-                    for pkg in imported_package:
-                        if block["name"] in pkg:
+                    for pkg_name in imported_package:
+                        found_function = False
+                        if block["name"] in imported_package[pkg_name]:
+                            found_function = True
                             args = [a.strip() for a in re.split(args_partten, block['args'])] if block["args"] else []
-                            pkg[block["name"]](*args)
+                            if CONFIG["PhseX"]["data_security_mode"]:
+                                security_func = memory_usage_check(imported_package[pkg_name][block["name"]])
+                                try:
+                                    security_func(*args) # type: ignore
+                                except TypeError:
+                                    pass # 这NoneType Error是什么鬼东西？？？结果都出来了给我来个报错
+                                
+                            else:
+                                imported_package[pkg_name][block["name"]](*args)
                             break
+                        else:
+                            continue
+                        
+                    if found_function: # type: ignore
+                        pass
+                    else:
+                        op_stop_os(f"Function {code["name"]} not found.",1,code["name"])
+
             
             # 执行全局普通指令
             else:
-                for pkg in imported_package:
-                    if code["name"] in pkg:
+                for pkg_name in imported_package:
+                    found_function = False
+                    if code["name"] in imported_package[pkg_name]:
+                        found_function = True
                         args = [a.strip() for a in re.split(args_partten, code['args'])] if code["args"] else []
-                        pkg[code["name"]](*args)
+                        if CONFIG["PhseX"]["data_security_mode"]:
+                            security_func = memory_usage_check(imported_package[pkg_name][code["name"]](*args))
+                            try:
+                                security_func(*args)
+                            except TypeError:
+                                pass # 这NoneType Error是什么鬼东西？？？结果都出来了给我来个报错
+                        else:
+                            imported_package[pkg_name][code["name"]](*args)
                         break
+                    else:
+                        continue
+                if found_function: # type: ignore
+                    pass
+                else:
+                    op_stop_os(f"Function {code["name"]} not found.",1,code["name"])
 
         # 标签内部内容收集
         else:
@@ -95,4 +136,4 @@ def run_code(file):
                 in_lable = False
                 current_lable = ""
             else:
-                lable_table[current_lable].append(code) 
+                lable_table[current_lable].append(code)
