@@ -95,4 +95,4 @@ def run_code(file):
                 in_lable = False
                 current_lable = ""
             else:
-                lable_table[current_lable].append(code)
+                lable_table[current_lable].append(code) 
