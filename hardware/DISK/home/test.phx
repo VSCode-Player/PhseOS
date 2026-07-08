@@ -1,3 +1,4 @@
-LOAD stdio
+LOAD FileIO
 
-MSG "Hello World\n"
+create_file home\test_file.txt
+write_file home\test_file.txt,我操你妈
