@@ -15,11 +15,10 @@ imported_package = {}
 process_list = []
 
 
-
 def run_code(file):
     CODE = Path(file).open("r", encoding="utf-8").read()
     code_line = CODE.split("\n")
-
+    found_function = False
     code_list = []
     in_lable = False
     current_lable = ""
@@ -50,8 +49,13 @@ def run_code(file):
                     spec = importlib.util.spec_from_file_location(code["args"], pkg_file)
                     mod = importlib.util.module_from_spec(spec) # type: ignore
                     spec.loader.exec_module(mod) # type: ignore
-                    EXPORT = mod.EXPORT
-                    imported_package[code["args"]] = EXPORT
+                    EXPORT:dict = mod.EXPORT
+                    for i in EXPORT.items():
+                        try:
+                            imported_package[code["args"]]
+                        except KeyError:
+                            imported_package[code["args"]] = {}
+                        imported_package[code["args"]][i[0]] = i[1]
                 else:
                     op_stop_os(f"Package {code["args"]} not found in /system/phsex/library.",1,code["args"])
             

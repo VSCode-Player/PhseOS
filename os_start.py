@@ -11,4 +11,4 @@ if CONFIG["PhseX"]["debug_mode"]:
     print(f"进程列表:{process_list}")
     print(f"链接表:{symbol_table}")
     print(f"标签列表:{lable_table}")
-    print(f"导入的模块:{imported_package.keys()}")
+    print(f"导入的模块:{imported_package}")

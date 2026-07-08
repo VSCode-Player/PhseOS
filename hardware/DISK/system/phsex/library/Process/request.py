@@ -8,3 +8,9 @@ def create_process(lable_name):
         process_list.append(process_info_dict)
     else:
         op_stop_os(f"{lable_name} not found in lable_table.",1,lable_name)
+
+def allocate_memroy(process_name,size):
+    if process_name in process_list:
+        pass
+    else:
+        op_stop_os(f"Cannot find process {process_name}.",1,process_name)

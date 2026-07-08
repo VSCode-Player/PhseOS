@@ -9,7 +9,7 @@
     "memory_size" : 1024,
     "PhseX":{
         "debug_mode":true,
-        "data_security_mode":true
+        "data_security_mode":false
     },
     "reg_set" : {
         "reg_width" : 8,
