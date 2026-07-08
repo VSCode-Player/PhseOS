@@ -1,25 +1,20 @@
 LOAD stdio
 
-; 一个可以输出1~10中的偶数的程序
-MOV 1,R0
-MOV 2,R2
-POINT A,R0
+LABEL FOR_INIT:
+MOV 0,R0
+LABEL_END
 
-LABLE main:
-REM R0,R2,R1
-CMP R1,0
-JZ msg_result
-JNZ countiune
-LABLE_END
-
-LABLE msg_result:
-MSG [A],INT
-MSG "\n"
-LABLE_END
-
-LABLE countiune:
+LABEL FOR_CORD:
+CMP R0,5
+JZ FOR_EXIT
+MSG "Hello World!\n"
 ADD 1,R0
-JMP main
-LABLE_END
+JL FOR_CORD
+LABEL_END
 
-main
+LABEL FOR_EXIT:
+OS_STOP
+LABEL_END
+
+FOR_INIT
+FOR_CORD

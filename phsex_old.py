@@ -45,7 +45,7 @@ def expand_multiline(lines: list[str], first: int, last: int) -> list[str]:
         ln.split(";;", 1)[0].strip()
         for ln in lines[first:last+1]
         if ln.split(";;", 1)[0].strip()
-        and not ln.strip().startswith("LABLE ")
+        and not ln.strip().startswith("label ")
         and ln.strip() != "DONE"
     ]
 
@@ -110,7 +110,7 @@ def run_JMP(line: str):
     in_block = False
     start_line = 0
     for idx, ln in enumerate(src_lines, 1):
-        if ln.startswith("LABLE ") and ln.split(" ", 1)[1] == label and not in_block:
+        if ln.startswith("label ") and ln.split(" ", 1)[1] == label and not in_block:
             in_block = True
             start_line = idx
             continue
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         line = raw.split(";;", 1)[0].strip()
         if not line:
             continue
-        if line.startswith("LABLE "):
+        if line.startswith("label "):
             in_label_block = True
             continue
         if line.strip() == "DONE":

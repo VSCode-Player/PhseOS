@@ -9,5 +9,8 @@ file_spec.loader.exec_module(file_module) # type: ignore
 
 EXPORT = {
     "create_file":file_module.create_file,
-    "write_file":file_module.write_file
+    "write_file":file_module.write_file,
+    "delete_file":file_module.delete_file,
+    "create_dir":file_module.create_dir,
+    "delete_dir":file_module.delete_dir
 }

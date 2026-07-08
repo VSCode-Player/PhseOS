@@ -4,7 +4,8 @@ import os
 from PhseXlib.addres import addres_transformer
 from PhseXlib.op_lib import * # type: ignore
 from PhseXlib.locals import * # type: ignore
-from phsex import lable_table, imported_package, args_partten
+from PhseXlib.code_expand import memory_usage_check
+from phsex import label_table, imported_package,args_partten
 from pathlib import Path
 
 # CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
@@ -240,24 +241,34 @@ def _get_cmp_flag():
         return None
 
 def _execute_label(label):
-    """Helper function to execute label instructions with error handling"""
-    if label not in lable_table:
-        op_stop_os(f"LABLE '{label}' not found.", 1)
-        return False
+    code_list = []
+    if label in label_table:
+        for i in label_table[label]:
+            code_list.append(i)
+    else:
+        op_stop_os(f"Label {label} is not found.",1)
     
-    for i in lable_table[label]:
-        if i["name"] not in imported_package[0]:
-            op_stop_os(f"Package function '{i['name']}' not found", 1)
-            return False
-        
-        try:
-            args = [a.strip() for a in re.split(args_partten, i['args'])]
-            imported_package[0][i["name"]](*args)
-        except Exception as e:
-            op_stop_os(f"Error executing '{i['name']}': {str(e)}", 1)
-            return False
-    
-    return True
+    for code in code_list:
+        for pkg_name in imported_package:
+            found_function = False
+            if code["name"] in imported_package[pkg_name]:
+                found_function = True
+                args = [a.strip() for a in re.split(args_partten, code['args'])] if code["args"] else []
+                if CONFIG["PhseX"]["data_security_mode"]:
+                    security_func = memory_usage_check(imported_package[pkg_name][code["name"]](*args))
+                    try:
+                        security_func(*args)
+                    except TypeError:
+                        pass # 这NoneType Error是什么鬼东西？？？结果都出来了给我来个报错
+                else:
+                    imported_package[pkg_name][code["name"]](*args)
+                break
+            else:
+                continue
+        if found_function: # type: ignore
+            pass
+        else:
+            op_stop_os(f"Function {code["name"]} not found.",1,code["name"])
 
 def jmp(label):
     _execute_label(label)

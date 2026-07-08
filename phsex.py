@@ -8,9 +8,9 @@ import re
 
 CONFIG = json.load(Path("build.json").open("r", encoding="utf-8"))
 args_partten = r',(?=(?:[^"]*"[^"]*")*[^"]*$)'
-lable_partten = r"^(?!\\d+$).+$"
+label_partten = r"^(?!\\d+$).+$"
 symbol_table = {}
-lable_table = {}
+label_table = {}
 imported_package = {}
 process_list = []
 
@@ -20,8 +20,8 @@ def run_code(file):
     code_line = CODE.split("\n")
     found_function = False
     code_list = []
-    in_lable = False
-    current_lable = ""
+    in_label = False
+    current_label = ""
 
     # 第一步：解析所有代码行
     for line in code_line:
@@ -40,7 +40,7 @@ def run_code(file):
 
     # 第二步：构建标签表 + 执行全局指令
     for code in code_list:
-        if not in_lable:
+        if not in_label:
             # 加载库
             if code["name"] == "LOAD":
                 pack_path = os.path.join(CONFIG["STORAGE_dir"], "system/phsex/library", code["args"])
@@ -59,7 +59,7 @@ def run_code(file):
                 else:
                     op_stop_os(f"Package {code["args"]} not found in /system/phsex/library.",1,code["args"])
             
-            # 定义变量
+            # 定义指针
             elif code["name"] == "POINT":
                 args = [a.strip() for a in re.split(args_partten, code['args'])]
                 if len(args) >= 2:
@@ -68,15 +68,15 @@ def run_code(file):
                     op_stop_os("POINT function needs 2 arguments.",1)
             
             # 开始定义标签
-            elif code["name"] == "LABLE" and not code["args"].strip().isdigit():
-                in_lable = True
-                current_lable = code["args"].strip().rstrip(":")
-                lable_table[current_lable] = []
+            elif code["name"] == "LABEL" and not code["args"].strip().isdigit():
+                in_label = True
+                current_label = code["args"].strip().rstrip(":")
+                label_table[current_label] = []
             
             # 调用标签（核心：支持 BREAK 提前退出）
-            elif code["name"] in lable_table:
+            elif code["name"] in label_table:
                 break_flag = False  # 中断标记
-                for block in lable_table[code["name"]]:
+                for block in label_table[code["name"]]:
                     # 触发 BREAK，直接结束标签执行
                     if break_flag:
                         break
@@ -136,8 +136,8 @@ def run_code(file):
 
         # 标签内部内容收集
         else:
-            if code["name"] == "LABLE_END":
-                in_lable = False
-                current_lable = ""
+            if code["name"] == "LABEL_END":
+                in_label = False
+                current_label = ""
             else:
-                lable_table[current_lable].append(code)
+                label_table[current_label].append(code)

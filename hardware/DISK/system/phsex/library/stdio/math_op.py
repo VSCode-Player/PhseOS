@@ -10,14 +10,14 @@ def add(first_addr, second_addr, result_addr=None):
     second_addr_dict = addres_transformer(second_addr) # 第二个地址的文件数据，类型dict
     # 第三个参数，即结果写入地址
     if result_addr is not None:
-        if is_addres(result_addr):
+        if is_address(result_addr):
             target_addr = addres_transformer(result_addr)
         else:
             op_stop_os(f"Error from ADD:If the third argument is not None, the third argument must be addres.",1,error_args=f"{result_addr}")
     else:
         target_addr = second_addr_dict
     # 第一个参数，即第一个加数
-    if is_addres(first_addr_dict):
+    if is_address(first_addr_dict):
         first_addr_file_dict = load_addr_file(first_addr_dict)
         first_num = int(first_addr_file_dict[first_addr_dict["key"]],2)
     elif first_addr_dict["file"] == "TYPE:INT":
@@ -25,7 +25,7 @@ def add(first_addr, second_addr, result_addr=None):
     else:
         op_stop_os(f"Error from ADD:First addres must be addres or int.",1,error_args=f"{first_addr}")
     # 第二个参数，即第二个加数
-    if is_addres(second_addr_dict):
+    if is_address(second_addr_dict):
         second_addr_file_dict = load_addr_file(second_addr_dict)
         second_num = int(second_addr_file_dict[second_addr_dict["key"]],2)
     # 如果第三个参数为空，则自动把结果写入第二个参数的地址
@@ -43,7 +43,7 @@ def sub(first_addr, second_addr, result_addr=None):
 
     # 1. 确定目标地址
     if result_addr is not None:
-        if is_addres(result_addr):
+        if is_address(result_addr):
             target_addr = addres_transformer(result_addr)
         else:
             op_stop_os(f"Error from SUB: If the third argument is not None, it must be a valid address.", 1, error_args=f"{result_addr}")
@@ -51,7 +51,7 @@ def sub(first_addr, second_addr, result_addr=None):
         target_addr = second_addr_dict
 
     # 2. 解析第一个操作数
-    if is_addres(first_addr_dict):
+    if is_address(first_addr_dict):
         first_addr_file_dict = load_addr_file(first_addr_dict)
         first_num = int(first_addr_file_dict[first_addr_dict["key"]], 2)
     elif first_addr_dict.get("file") == "TYPE:INT":
@@ -60,7 +60,7 @@ def sub(first_addr, second_addr, result_addr=None):
         op_stop_os(f"Error from SUB: First address must be address or int.", 1, error_args=f"{first_addr}")
 
     # 3. 解析第二个操作数
-    if is_addres(second_addr_dict):
+    if is_address(second_addr_dict):
         second_addr_file_dict = load_addr_file(second_addr_dict)
         second_num = int(second_addr_file_dict[second_addr_dict["key"]], 2)
     elif second_addr_dict.get("file") == "TYPE:INT":
@@ -83,7 +83,7 @@ def mul(first_addr, second_addr, result_addr=None):
 
     # 1. 确定目标地址
     if result_addr is not None:
-        if is_addres(result_addr):
+        if is_address(result_addr):
             target_addr = addres_transformer(result_addr)
         else:
             op_stop_os(f"Error from MUL: If the third argument is not None, it must be a valid address.", 1, error_args=f"{result_addr}")
@@ -91,7 +91,7 @@ def mul(first_addr, second_addr, result_addr=None):
         target_addr = second_addr_dict
 
     # 2. 解析第一个操作数
-    if is_addres(first_addr_dict):
+    if is_address(first_addr_dict):
         first_addr_file_dict = load_addr_file(first_addr_dict)
         first_num = int(first_addr_file_dict[first_addr_dict["key"]], 2)
     elif first_addr_dict.get("file") == "TYPE:INT":
@@ -100,7 +100,7 @@ def mul(first_addr, second_addr, result_addr=None):
         op_stop_os(f"Error from MUL: First address must be address or int.", 1, error_args=f"{first_addr}")
 
     # 3. 解析第二个操作数
-    if is_addres(second_addr_dict):
+    if is_address(second_addr_dict):
         second_addr_file_dict = load_addr_file(second_addr_dict)
         second_num = int(second_addr_file_dict[second_addr_dict["key"]], 2)
     elif second_addr_dict.get("file") == "TYPE:INT":
@@ -121,7 +121,7 @@ def div(first_addr, second_addr, result_addr=None):
 
     # 1. 确定目标地址
     if result_addr is not None:
-        if is_addres(result_addr):
+        if is_address(result_addr):
             target_addr = addres_transformer(result_addr)
         else:
             op_stop_os(f"Error from DIV: If the third argument is not None, it must be a valid address.", 1, error_args=f"{result_addr}")
@@ -129,7 +129,7 @@ def div(first_addr, second_addr, result_addr=None):
         target_addr = second_addr_dict
 
     # 2. 解析第一个操作数
-    if is_addres(first_addr_dict):
+    if is_address(first_addr_dict):
         first_addr_file_dict = load_addr_file(first_addr_dict)
         first_num = int(first_addr_file_dict[first_addr_dict["key"]], 2)
     elif first_addr_dict.get("file") == "TYPE:INT":
@@ -138,7 +138,7 @@ def div(first_addr, second_addr, result_addr=None):
         op_stop_os(f"Error from DIV: First address must be address or int.", 1, error_args=f"{first_addr}")
 
     # 3. 解析第二个操作数
-    if is_addres(second_addr_dict):
+    if is_address(second_addr_dict):
         second_addr_file_dict = load_addr_file(second_addr_dict)
         second_num = int(second_addr_file_dict[second_addr_dict["key"]], 2)
     elif second_addr_dict.get("file") == "TYPE:INT":
@@ -165,7 +165,7 @@ def cmp(first_addr, second_addr):
     second_addr_dict = addres_transformer(second_addr)
     target_addr = {"file":CONFIG["REG_flag_file"],"key":"CMP"}
 
-    if is_addres(first_addr_dict):
+    if is_address(first_addr_dict):
         first_addr_file_dict = load_addr_file(first_addr_dict)
         first_num = int(first_addr_file_dict[first_addr_dict["key"]], 2)
     elif first_addr_dict["file"] == "TYPE:INT":
@@ -173,7 +173,7 @@ def cmp(first_addr, second_addr):
     else:
         op_stop_os(f"Error from CMP: First address must be address or int.", 1, error_args=f"{first_addr}")
 
-    if is_addres(second_addr_dict):
+    if is_address(second_addr_dict):
         second_addr_file_dict = load_addr_file(second_addr_dict)
         second_num = int(second_addr_file_dict[second_addr_dict["key"]], 2)
     elif second_addr_dict["file"] == "TYPE:INT":
@@ -194,7 +194,7 @@ def rem(first_addr, second_addr, result_addr=None):
 
     # 1. 确定目标地址
     if result_addr is not None:
-        if is_addres(result_addr):
+        if is_address(result_addr):
             target_addr = addres_transformer(result_addr)
         else:
             op_stop_os(f"Error from REM: If the third argument is not None, it must be a valid address.", 1, error_args=f"{result_addr}")
@@ -202,7 +202,7 @@ def rem(first_addr, second_addr, result_addr=None):
         target_addr = second_addr_dict
 
     # 2. 解析第一个操作数
-    if is_addres(first_addr_dict):
+    if is_address(first_addr_dict):
         first_addr_file_dict = load_addr_file(first_addr_dict)
         first_num = int(first_addr_file_dict[first_addr_dict["key"]], 2)
     elif first_addr_dict.get("file") == "TYPE:INT":
@@ -211,7 +211,7 @@ def rem(first_addr, second_addr, result_addr=None):
         op_stop_os(f"Error from REM: First address must be address or int.", 1, error_args=f"{first_addr}")
 
     # 3. 解析第二个操作数
-    if is_addres(second_addr_dict):
+    if is_address(second_addr_dict):
         second_addr_file_dict = load_addr_file(second_addr_dict)
         second_num = int(second_addr_file_dict[second_addr_dict["key"]], 2)
     elif second_addr_dict.get("file") == "TYPE:INT":
