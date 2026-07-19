@@ -1,41 +1,31 @@
 from PhseXlib.addres import * # type: ignore
 from PhseXlib.op_lib import op_write, op_stop_os, op_data_transform
 from PhseXlib.locals import * # type: ignore
+from phsex import symbol_table
 import json
 
 # CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
 
 def add(first_addr, second_addr, result_addr=None):
-    first_addr_dict = addres_transformer(first_addr)    # 第个地址的文件数据，类型dict
-    second_addr_dict = addres_transformer(second_addr) # 第二个地址的文件数据，类型dict
-    # 第三个参数，即结果写入地址
-    if result_addr is not None:
-        if is_address(result_addr):
-            target_addr = addres_transformer(result_addr)
-        else:
-            op_stop_os(f"Error from ADD:If the third argument is not None, the third argument must be addres.",1,error_args=f"{result_addr}")
-    else:
-        target_addr = second_addr_dict
-    # 第一个参数，即第一个加数
-    if is_address(first_addr_dict):
-        first_addr_file_dict = load_addr_file(first_addr_dict)
-        first_num = int(first_addr_file_dict[first_addr_dict["key"]],2)
-    elif first_addr_dict["file"] == "TYPE:INT":
-        first_num = get_value(first_addr_dict)
-    else:
-        op_stop_os(f"Error from ADD:First addres must be addres or int.",1,error_args=f"{first_addr}")
-    # 第二个参数，即第二个加数
-    if is_address(second_addr_dict):
-        second_addr_file_dict = load_addr_file(second_addr_dict)
-        second_num = int(second_addr_file_dict[second_addr_dict["key"]],2)
-    # 如果第三个参数为空，则自动把结果写入第二个参数的地址
-    elif target_addr == second_addr_dict: # type: ignore 
-        op_stop_os(f"Error from ADD:If the third argument is None, the second argument must be addres.",1,error_args=f"{second_addr}")
-    else:
-        second_num = get_value(second_addr_dict)
+    first_addr_dcit = addres_transformer(first_addr)
+    second_addr_dict = addres_transformer(second_addr)
+    target_addr_dict = second_addr_dict
 
-    result = first_num + second_num # type: ignore
-    op_write(op_data_transform(result, INT_TO_BIN), target_addr) # type: ignore
+    if result_addr is not None:
+        result_addr_dict = addres_transformer(result_addr)
+        if is_address(result_addr_dict):
+            target_addr_dict = result_addr_dict
+        else:
+            if result_addr_dict["file"] == "TYPE:POINT" and result_addr_dict["key"] in symbol_table:
+                target_addr_dict = addres_transformer(symbol_table[result_addr_dict["key"]])
+            else:
+                op_stop_os(f"Point {result_addr_dict["key"]} not found.",1)
+
+    if is_address(first_addr_dcit):
+        pass
+    else:
+        if first_addr_dcit["file"] == "TYPE:STRING":
+            op_data_transform(first_addr_dcit["key"],CHAR_TO_BIN)
 
 def sub(first_addr, second_addr, result_addr=None):
     first_addr_dict = addres_transformer(first_addr)
