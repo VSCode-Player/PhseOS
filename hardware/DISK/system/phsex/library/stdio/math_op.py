@@ -7,25 +7,24 @@ import json
 # CONFIG = json.load(Path("build.json").open("r",encoding="utf-8"))
 
 def add(first_addr, second_addr, result_addr=None):
-    first_addr_dcit = addres_transformer(first_addr)
-    second_addr_dict = addres_transformer(second_addr)
-    target_addr_dict = second_addr_dict
-
-    if result_addr is not None:
-        result_addr_dict = addres_transformer(result_addr)
-        if is_address(result_addr_dict):
-            target_addr_dict = result_addr_dict
-        else:
-            if result_addr_dict["file"] == "TYPE:POINT" and result_addr_dict["key"] in symbol_table:
-                target_addr_dict = addres_transformer(symbol_table[result_addr_dict["key"]])
-            else:
-                op_stop_os(f"Point {result_addr_dict["key"]} not found.",1)
-
-    if is_address(first_addr_dcit):
-        pass
+    '''
+    first_addr: 支持立即数、寄存器地址、内存地址、指针
+    second_addr: 支持立即数、寄存器地址、内存地址、指针
+    result_addr: 支持内存地址、寄存器地址、指针、空
+    '''
+    first_addr_dict = addres_transformer(first_addr)
+    second_addr_dicct = addres_transformer(second_addr)
+    if result_addr:
+        result_addr_dict = None
     else:
-        if first_addr_dcit["file"] == "TYPE:STRING":
-            op_data_transform(first_addr_dcit["key"],CHAR_TO_BIN)
+        result_addr_dict = addres_transformer(result_addr)
+    first_number = 0
+    second_number = 0
+
+    if is_address(first_addr):
+        first_number = load_addr_file(first_addr_dict)[first_addr_dict["key"]]
+    elif first_number:
+        pass
 
 def sub(first_addr, second_addr, result_addr=None):
     first_addr_dict = addres_transformer(first_addr)
