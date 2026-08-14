@@ -1,5 +1,5 @@
 from PhseXlib.locals import * # type: ignore
-from PhseXlib.addres import addres_transformer
+from PhseXlib.addres import address_transformer
 from PhseXlib.op_lib import op_data_transform, op_stop_os
 from phsex import symbol_table
 from pathlib import Path
@@ -17,7 +17,7 @@ def msg(*string):
     '''
     
     if string:  # 如果有参数
-        first_arg = addres_transformer(string[0]) # 解析第一个参数
+        first_arg = address_transformer(string[0]) # 解析第一个参数
         if first_arg["file"] in ["TYPE:STRING", "TYPE:POINT"]:
             if first_arg["file"] == "TYPE:STRING": # 如果是字符串
                 result = first_arg["key"]
@@ -31,7 +31,7 @@ def msg(*string):
                 point_name = first_arg["key"]
                 if point_name in symbol_table:
                     point_addr = symbol_table[point_name]
-                    point_addr_dict = addres_transformer(point_addr)
+                    point_addr_dict = address_transformer(point_addr)
                     point_data = json.load(Path(point_addr_dict["file"]).open("r",encoding="utf-8"))[point_addr_dict["key"]]
                     if second_arg in ["INT","STR"]:
                         if second_arg == "INT":

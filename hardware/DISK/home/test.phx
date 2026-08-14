@@ -1,5 +1,0 @@
-LOAD FileIO
-
-create_dir home/test
-create_file home/test/test.txt
-write_file home/test/test.txt, "Hello World"

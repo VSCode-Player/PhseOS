@@ -1,6 +1,6 @@
 from PhseXlib.locals import CONFIG
 from PhseXlib.op_lib import op_stop_os
-from PhseXlib.addres import addres_transformer,get_value
+from PhseXlib.addres import address_transformer,get_value
 import os
 
 STORAGE_PATH = os.path.abspath(CONFIG["STORAGE_dir"])
@@ -13,7 +13,7 @@ def create_file(path):
         op_stop_os(f"{os.path.join(STORAGE_PATH,path)} exists.",1,os.path.join(STORAGE_PATH,path))
 
 def write_file(path,content):
-    content_dict:dict = addres_transformer(content)
+    content_dict:dict = address_transformer(content)
     if os.path.exists(os.path.join(STORAGE_PATH,path)):
         with open(os.path.join(STORAGE_PATH,path),"w",encoding="utf-8") as file:
             file.write(get_value(content_dict)) # type: ignore

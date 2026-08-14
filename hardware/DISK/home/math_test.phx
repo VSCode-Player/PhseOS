@@ -1,0 +1,6 @@
+LOAD stdio
+
+MOV 5,R0
+MOV 0,R1
+
+DIV R0,R1,R2

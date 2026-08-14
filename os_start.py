@@ -3,7 +3,7 @@ from phsex import *
 from os.path import join
 
 init() # 初始化系统环境
-file_path = join(CONFIG["STORAGE_dir"],"home","main.phx")
+file_path = join(CONFIG["STORAGE_dir"],"home","math_test.phx")
 run_code(file_path) # 运行主程序
 
 if CONFIG["PhseX"]["debug_mode"]:

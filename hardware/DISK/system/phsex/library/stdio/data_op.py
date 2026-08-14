@@ -1,7 +1,7 @@
 import json
 import re
 import os
-from PhseXlib.addres import addres_transformer
+from PhseXlib.addres import address_transformer
 from PhseXlib.op_lib import * # type: ignore
 from PhseXlib.locals import * # type: ignore
 from PhseXlib.code_expand import memory_usage_check
@@ -12,8 +12,8 @@ from pathlib import Path
 
 def mov(first_addr, second_addr):
     try:
-        first_addr_dict = addres_transformer(first_addr)
-        second_addr_dict = addres_transformer(second_addr)
+        first_addr_dict = address_transformer(first_addr)
+        second_addr_dict = address_transformer(second_addr)
     except Exception as e:
         op_stop_os(f"Address transformation failed: {str(e)}", 1)
         return
@@ -45,7 +45,7 @@ def mov(first_addr, second_addr):
 
 def left_shift(addr, num):
     try:
-        addr_dict = addres_transformer(addr)
+        addr_dict = address_transformer(addr)
     except Exception as e:
         op_stop_os(f"Address transformation failed: {str(e)}", 1)
         return
@@ -82,7 +82,7 @@ def left_shift(addr, num):
 
 def right_shift(addr, num):
     try:
-        addr_dict = addres_transformer(addr)
+        addr_dict = address_transformer(addr)
     except Exception as e:
         op_stop_os(f"Address transformation failed: {str(e)}", 1)
         return
@@ -144,7 +144,7 @@ def set_flag(data, flag):
 
 def set_status(addr: str, status: str):
     try:
-        addr_dict = addres_transformer(addr)
+        addr_dict = address_transformer(addr)
     except Exception as e:
         op_stop_os(f"Address transformation failed: {str(e)}", 1)
         return
@@ -174,7 +174,7 @@ def set_status(addr: str, status: str):
 
 def get_input(addr: str, type: str):
     try:
-        addr_dict = addres_transformer(addr)
+        addr_dict = address_transformer(addr)
     except Exception as e:
         op_stop_os(f"Address transformation failed: {str(e)}", 1)
         return
