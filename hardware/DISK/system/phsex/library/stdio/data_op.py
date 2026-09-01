@@ -1,7 +1,7 @@
 import json
 import re
 import os
-from PhseXlib.addres import address_transformer
+from PhseXlib.addres import * # type: ignore
 from PhseXlib.op_lib import * # type: ignore
 from PhseXlib.locals import * # type: ignore
 from PhseXlib.code_expand import memory_usage_check
@@ -172,48 +172,56 @@ def set_status(addr: str, status: str):
     except Exception as e:
         op_stop_os(f"Error in set_status: {str(e)}", 1)
 
-def get_input(addr: str, type: str):
-    try:
-        addr_dict = address_transformer(addr)
-    except Exception as e:
-        op_stop_os(f"Address transformation failed: {str(e)}", 1)
-        return
-    
-    try:
-        data = input()
-    except EOFError:
-        op_stop_os("Input stream closed unexpectedly", 1)
-        return
-    except Exception as e:
-        op_stop_os(f"Input error: {str(e)}", 1)
-        return
-    
+def get_input(start_addr:dict, type:str):
+    input_data = input()
+    data_list = []
     if type == "INT":
-        try:
-            data = op_data_transform(data, INT_TO_BIN)
-        except Exception as e:
-            op_stop_os(f"Failed to transform input to INT: {str(e)}", 1)
-            return
-    elif type == "STRING":
-        if len(data) == 1:
-            try:
-                data = op_data_transform(data, CHAR_TO_BIN)
-            except Exception as e:
-                op_stop_os(f"Failed to transform input to CHAR: {str(e)}", 1)
-                return
-        else:
-            op_stop_os("Only single character input is supported.", 1)
-            return
+        pass
+    elif type == "STR":
+        for i in input_data:
+            pass
+    elif type == "BIN":
+        pass
     else:
-        op_stop_os(f"Invalid data type '{type}' for input.", 1)
-        return
-    
-    try:
-        op_write(data, addr_dict)
-    except Exception as e:
-        op_stop_os(f"Failed to write input data: {str(e)}", 1)
+        op_stop_os("Input must be int, string and bin.",1)
 
-# --- 跳转命令 ---
+def check_memory_space(start_addr_dict, data_size):
+    start_addr = start_addr_dict["key"]
+    addr_file_dict = load_addr_file(start_addr_dict)
+    addr_file_key_list = list(addr_file_dict.keys())
+    free_space = []
+    if re.fullmatch(ram,addr_file_key_list[0]):
+        with open(CONFIG["RAM_status_file"],"r",encoding="utf-8") as RAM_status_file:
+            RAM_status_file_list = list(json.load(RAM_status_file).values())
+            if start_addr in addr_file_key_list:
+                start_addr_index = addr_file_key_list.index(start_addr)
+                for i in range(0,len(RAM_status_file_list[start_addr_index:])+1):
+                    if RAM_status_file_list[i] == "free":
+                        free_space.append(addr_file_key_list[i])
+                    else:
+                        continue
+                if len(free_space) >= data_size:
+                    return free_space
+                else:
+                    return "Not enough memory"
+            else:
+                op_stop_os("Memory address does not exist.",1)
+    elif re.fullmatch(register, addr_file_key_list[0]):
+        with open(CONFIG["REG_status_file"],"r",encoding="utf-8") as REG_status_file:
+            REG_status_file_list = list(json.load(REG_status_file).values())
+            if start_addr in addr_file_key_list:
+                start_addr_index = addr_file_key_list.index(start_addr)
+                for i in range(0,len(REG_status_file_list[start_addr_index:])):
+                    if REG_status_file_list[i] == "free":
+                        free_space.append(addr_file_key_list[i])
+                    else:
+                        continue
+                    
+                    if len(free_space) >= data_size:
+                        return free_space
+    else:
+        op_stop_os("start addres is invalid",1)
+
 def _get_cmp_flag():
     """Helper function to get CMP flag value with error handling"""
     try:

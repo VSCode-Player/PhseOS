@@ -1,0 +1,6 @@
+LOAD stdio
+LOAD FileIO
+
+MSG "PhseOS Shell@V1.0.0\n"
+MSG "(/)>"
+INP 
