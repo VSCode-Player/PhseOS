@@ -172,40 +172,43 @@ def set_status(addr: str, status: str):
     except Exception as e:
         op_stop_os(f"Error in set_status: {str(e)}", 1)
 
-def get_input(start_addr:dict, type:str):
+def get_input(start_addr:str, type:str):
     input_data = input()
+    start_addr_dict = address_transformer(start_addr)
     data_list = []
     if type == "INT":
-        pass
+        int_data = get_value(address_transformer(input_data))
+        op_write(op_data_transform(int_data, INT_TO_BIN),start_addr_dict)
     elif type == "STR":
+        str_list = []
         for i in input_data:
-            pass
-    elif type == "BIN":
-        pass
+            str_list.append(op_data_transform(i, CHAR_TO_BIN))
+        use_space = _check_memory_space(start_addr_dict,len(str_list))
+        if use_space not in ["Not enough memory","Not enough registry"]:
+            for j in use_space:
+                for k in str_list:
+                    op_write(k, address_transformer(j))
     else:
         op_stop_os("Input must be int, string and bin.",1)
 
-def check_memory_space(start_addr_dict, data_size):
+def _check_memory_space(start_addr_dict, data_size) -> list | str: # type: ignore
     start_addr = start_addr_dict["key"]
     addr_file_dict = load_addr_file(start_addr_dict)
     addr_file_key_list = list(addr_file_dict.keys())
     free_space = []
     if re.fullmatch(ram,addr_file_key_list[0]):
         with open(CONFIG["RAM_status_file"],"r",encoding="utf-8") as RAM_status_file:
-            RAM_status_file_list = list(json.load(RAM_status_file).values())
+            RAM_status_file = list(json.load(RAM_status_file).values())
             if start_addr in addr_file_key_list:
                 start_addr_index = addr_file_key_list.index(start_addr)
-                for i in range(0,len(RAM_status_file_list[start_addr_index:])+1):
-                    if RAM_status_file_list[i] == "free":
+                for i in range(0,len(RAM_status_file[start_addr_index:])):
+                    if RAM_status_file[i] == "free":
                         free_space.append(addr_file_key_list[i])
                     else:
                         continue
-                if len(free_space) >= data_size:
-                    return free_space
-                else:
-                    return "Not enough memory"
-            else:
-                op_stop_os("Memory address does not exist.",1)
+
+                    if len(free_space) >= data_size:
+                        return free_space
     elif re.fullmatch(register, addr_file_key_list[0]):
         with open(CONFIG["REG_status_file"],"r",encoding="utf-8") as REG_status_file:
             REG_status_file_list = list(json.load(REG_status_file).values())
