@@ -17,10 +17,25 @@ process_list = []
 def run_code(file):
     CODE = Path(file).open("r", encoding="utf-8").read()
     code_line = CODE.split("\n")
-    found_function = False
     code_list = []
     in_label = False
     current_label = ""
+
+    def run_instruction(ins):
+        """在已导入的包中查找并执行单条指令，找到并执行则返回 True。"""
+        for pkg_name in imported_package:
+            if ins["name"] in imported_package[pkg_name]:
+                args = [a.strip() for a in re.split(args_partten, ins["args"])] if ins["args"] else []
+                func = imported_package[pkg_name][ins["name"]]
+                if CONFIG["PhseX"]["data_security_mode"]:
+                    try:
+                        memory_usage_check(func)(*args)  # type: ignore
+                    except TypeError:
+                        pass  # 这NoneType Error是什么鬼东西？？？结果都出来了给我来个报错
+                else:
+                    func(*args)
+                return True
+        return False
 
     # 第一步：解析所有代码行
     for line in code_line:
@@ -86,51 +101,13 @@ def run_code(file):
                         continue
 
                     # 执行库函数
-                    for pkg_name in imported_package:
-                        found_function = False
-                        if block["name"] in imported_package[pkg_name]:
-                            found_function = True
-                            args = [a.strip() for a in re.split(args_partten, block['args'])] if block["args"] else []
-                            if CONFIG["PhseX"]["data_security_mode"]:
-                                security_func = memory_usage_check(imported_package[pkg_name][block["name"]])
-                                try:
-                                    security_func(*args) # type: ignore
-                                except TypeError:
-                                    pass # 这NoneType Error是什么鬼东西？？？结果都出来了给我来个报错
-                                
-                            else:
-                                imported_package[pkg_name][block["name"]](*args)
-                            break
-                        else:
-                            continue
-                        
-                    if found_function: # type: ignore
-                        pass
-                    else:
+                    if not run_instruction(block):
                         op_stop_os(f"Function {code["name"]} not found.",1,code["name"])
 
             
             # 执行全局普通指令
             else:
-                for pkg_name in imported_package:
-                    found_function = False
-                    if code["name"] in imported_package[pkg_name]:
-                        found_function = True
-                        args = [a.strip() for a in re.split(args_partten, code['args'])] if code["args"] else []
-                        if CONFIG["PhseX"]["data_security_mode"]:
-                            security_func = memory_usage_check(imported_package[pkg_name][code["name"]](*args))
-                            try:
-                                security_func(*args)
-                            except TypeError:
-                                pass # 这NoneType Error是什么鬼东西？？？结果都出来了给我来个报错
-                        else:
-                            imported_package[pkg_name][code["name"]](*args)
-                        break
-                    else:
-                        continue
-                if found_function: # type: ignore
-                    pass
-                else:
+                if not run_instruction(code):
                     op_stop_os(f"Function {code["name"]} not found.",1,code["name"])
 
         # 标签内部内容收集
