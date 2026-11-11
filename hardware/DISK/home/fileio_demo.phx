@@ -1,0 +1,38 @@
+LOAD stdio
+LOAD FileIO
+
+MSG "=== FileIO demo ===\n"
+MSG "--- create & write ---\n"
+CREATE_FILE "/home/hello.txt"
+WRITE_FILE "/home/hello.txt", "Hello, PhseOS!"
+READ_FILE "/home/hello.txt"
+
+MSG "\n--- append ---\n"
+APPEND_FILE "/home/hello.txt", "\nSecond line"
+READ_FILE "/home/hello.txt"
+
+MSG "\n--- lines from 2 ---\n"
+READ_LINES "/home/hello.txt", 2
+
+MSG "\n--- size & info ---\n"
+FILE_SIZE "/home/hello.txt"
+MSG "\n"
+FILE_INFO "/home/hello.txt"
+
+MSG "\n--- descriptor ---\n"
+OPEN_FILE "/home/hello.txt", "r", R0
+READ_FD R0
+CLOSE_FILE R0
+
+MSG "\n--- directory ---\n"
+CREATE_DIR "/home/demo"
+COPY_FILE "/home/hello.txt", "/home/demo/hello.bak"
+LIST_DIR "/home", "*.txt"
+
+MSG "\n--- cleanup ---\n"
+DELETE_FILE "/home/demo/hello.bak"
+DELETE_DIR "/home/demo"
+FILE_EXISTS "/home/demo"
+
+MSG "\n=== done ===\n"
+OS_STOP
